@@ -1,10 +1,10 @@
-# eleeye
-ElephantEye - a XiangQi (Chinese Chess) Engine for XQWizard with Strong AI
+# ElephantEye
+a XiangQi (Chinese Chess) Engine for XQWizard with Strong AI
 
 中国象棋对弈程序ElephantEye(象眼)　版本：3.15
 
-象棋百科全书网 *　2008年3月<br>
-(* Email: webmaster@xqbase.com)
+象棋百科全书网 \*　2008年3月<br>
+(\* Email: webmaster@xqbase.com)
 
 一、简介
 
@@ -90,9 +90,9 @@ ElephantEye - a XiangQi (Chinese Chess) Engine for XQWizard with Strong AI
 　　ElephantEye 从2.1版开始，程序的搜索部分和局面评价部分就分离了，搜索部分通过调用API函数的形式与局面评价部分耦合。<br>
 　　其他象棋程序设计师可以在 ElephantEye 的基础上更自由地发挥。根据LGPL协议，搜索和局面评价这两个部分都作为独立的程序库，运用其中任何一部分都只需要公开该部分的源程序即可。换句话说，如果局面评价部分没有使用任何开放代码，那么程序设计师就没有义务公开这部分的源程序，搜索部分也是如此。<br>
 　　ElephantEye 的局面评价API函数接口定义如下：<br>
-　　　　A. 局面评价引擎名称：const char *GetEngineName(void);<br>
-　　　　B. 局面预评价函数接口：void PreEvaluate(PositionStruct \*lppos, PreEvalStruct *lpPreEval);<br>
-　　　　C. 局面评价函数接口：int Evaluate(const PositionStruct *lppos, int vlAlpha, int vlBeta);<br>
+　　　　A. 局面评价引擎名称：const char \*GetEngineName(void);<br>
+　　　　B. 局面预评价函数接口：void PreEvaluate(PositionStruct \*lppos, PreEvalStruct \*lpPreEval);<br>
+　　　　C. 局面评价函数接口：int Evaluate(const PositionStruct \*lppos, int vlAlpha, int vlBeta);<br>
 　　其中 PositionStruct 和 PreEvalStruct 必须分别符合 position.h 和 pregen.h 中定义的结构。　　　　
 
 八、源程序
