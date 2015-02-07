@@ -1,0 +1,32 @@
+#include <winver.h>
+1                       ICON    DISCARDABLE     "UCCI2QH.ICO"
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1, 6, 0, 0
+ PRODUCTVERSION 1, 6, 0, 0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "Comments", "QH2UCCI 1.6, (C) 2004-2006 www.elephantbase.net\0"
+            VALUE "CompanyName", "Author: Morning Yellow (* Shanghai Computer Chess Research Center, eMail: webmaster@elephantbase.net)\0"
+            VALUE "FileDescription", "QH2UCCI 1.6\0"
+            VALUE "FileVersion", "1.6\0"
+            VALUE "InternalName", "QH2UCCI 1.6\0"
+            VALUE "LegalCopyright", "QH2UCCI 1.6, (C) 2004-2006 www.elephantbase.net\0"
+            VALUE "LegalTrademarks", "www.elephantbase.net\0"
+            VALUE "OriginalFilename", "QH2UCCI.EXE\0"
+            VALUE "ProductName", "QH2UCCI 1.6\0"
+            VALUE "ProductVersion", "1.6\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

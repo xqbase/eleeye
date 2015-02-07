@@ -1,0 +1,3 @@
+g++ -DNDEBUG -O4 -Wall -oUNITTEST.EXE ../eleeye/pregen.cpp ../eleeye/position.cpp ../eleeye/genmoves.cpp unittest.cpp
+g++ -DNDEBUG -O4 -Wall -oMAKETEST.EXE ../eleeye/pregen.cpp ../eleeye/position.cpp ../eleeye/genmoves.cpp ../cchess/cchess.cpp ../cchess/pgnfile.cpp maketest.cpp
+g++ -DNDEBUG -O4 -Wall -oUCCITEST.EXE ../base/pipe.cpp ../eleeye/pregen.cpp ../eleeye/position.cpp ../eleeye/genmoves.cpp uccitest.cpp

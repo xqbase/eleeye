@@ -1,0 +1,150 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=gb_2312-80">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>中国象棋程序设计探索(一)：引言</title>
+</head>
+
+<body background="background.gif">
+
+<dl>
+    <div align="center"><center>
+    <dt><font size="6" face="隶书">中国象棋程序设计探索</font></dt>
+    </center></div><div align="center"><center>
+    <dt>　</dt>
+    </center></div><div align="center"><center>
+    <dt>象棋百科全书网 <font face="Times New Roman">(</font><a
+        href="mailto:webmaster@xqbase.com"><font
+        face="Times New Roman">webmaster@xqbase.com</font></a><font
+        face="Times New Roman">)</font></dt>
+    </center></div><div align="center"><center>
+    <dt><font face="Times New Roman">2005</font>年<font
+        face="Times New Roman">6</font>月初稿，<font
+        face="Times New Roman">2007</font>年<font
+        face="Times New Roman">12</font>月修订</dt>
+    </center></div>
+    <dt>　</dt>
+    <dt><font size="5" face="Arial"><strong>(</strong></font><font
+        size="5" face="楷体_GB2312"><strong>一</strong></font><font
+        size="5" face="Arial"><strong>) </strong></font><font
+        size="5" face="楷体_GB2312"><strong>引言</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">2005</font>年<font
+        face="Times New Roman">2</font>月我写出了象棋程序<font
+        face="Times New Roman">ElephantEye</font>的第一个版本<font
+        face="Times New Roman">(0.90)</font>，本来它只是象棋界面<font
+        face="Times New Roman">ElephantBoard(</font>现改名为象棋巫师<font
+        face="Times New Roman">)</font>的调试引擎。在设计程序的过程中，我尝试性地加入了很多算法，发现每次改进都能让程序的棋力有大幅度的提高，因此便对象棋程序的算法产生了浓厚的兴趣。到现在我已经陆续对<font
+        face="Times New Roman">ElephantEye</font>作了无数次加工，使得它的棋力接近了顶尖商业软件的水平，在非商业的象棋程序中，<font
+        face="Times New Roman">ElephantEye</font>无疑是最强的一个。</dt>
+    <dt>　　我希望能通过公开源代码的方式，推动中国象棋程序水平的整体发展，然而根据很多网友的反馈意见，发现源代码中的很多部分并不是那么容易理解的，为此我花了大量的时间为源程序加了注释。尽管如此，很多思想还是有必要以文字的形式保留下来，因此我才打算以《中国象棋程序设计探索》为题，写几篇详细介绍<font
+        face="Times New Roman">ElephantEye</font>算法的连载，希望能让源代码充分发挥它的作用。</dt>
+    <dt>　　总的来说，对弈程序是个系统工程，它是以下四个系统的有机结合<font
+        size="3">：</font><font size="3" face="Times New Roman">(1)
+        </font><font size="3">棋盘结构，</font><font
+        size="3" face="Times New Roman">(2) </font><font size="3">局面评价，</font><font
+        size="3" face="Times New Roman">(3) </font><font size="3">搜索技术，</font><font
+        size="3" face="Times New Roman">(4) </font><font size="3">其他。以</font><font
+        size="3" face="Times New Roman">ElephantEye</font><font
+        size="3">为例，这四个部分在程序中的比例各占</font><font
+        size="3" face="Times New Roman">25%</font><font size="3">，也就是说，每个方面都很重要。那么这四个部分应该以什么样的方式逐步建立呢？另一个公开源代码的程序</font><font
+        size="3" face="Times New Roman">VSCCP(Very Simple Chinese
+        Chess Program)</font><font size="3">给出了一个方向，</font>这是本很好的对弈程序设计的入门教材。尽管<font
+        face="Times New Roman">VSCCP</font>在棋力上还有很大的提升空间，但是它的结构体系是比较完整的，参考下面一组公式，找到有待提升的空间，只要稍作改进就能成为<font
+        face="Times New Roman">ElephantEye</font>。</dt>
+    <dd>　</dd>
+    <dd>棋盘结构 <font face="Times New Roman">= </font>局面表示
+        <font face="Times New Roman">+ </font>着法移动 <font
+        face="Times New Roman">+ </font>着法生成 <font
+        face="Times New Roman">+ </font>特殊局面判断</dd>
+    <dd>局面评价 <font face="Times New Roman">= </font>知识
+        <font face="Times New Roman">+ </font>优化的局面表示</dd>
+    <dd><font size="3">搜索技术 </font><font size="3"
+        face="Times New Roman">= </font><font size="3">完全搜索
+        </font><font size="3" face="Times New Roman">+ </font><font
+        size="3">静态搜索 </font><font size="3"
+        face="Times New Roman">+ </font><font size="3">启发 </font><font
+        size="3" face="Times New Roman">+ </font><font size="3">裁剪
+        </font><font size="3" face="Times New Roman">+ </font><font
+        size="3">选择性延伸 </font><font size="3"
+        face="Times New Roman">+ </font><font size="3">置换表 </font><font
+        size="3" face="Times New Roman">+ </font><font size="3">残局库
+        </font><font size="3" face="Times New Roman">+ </font><font
+        size="3">并行技术</font></dd>
+    <dd>其他 <font face="Times New Roman">= </font>开局库 <font
+        face="Times New Roman">+ </font>时间控制 <font
+        face="Times New Roman">+ </font>后台思考 <font
+        face="Times New Roman">+ </font>引擎协议</dd>
+    <dt>　</dt>
+    <dt>　　现在我来回答读者最关心的一个问题——<font
+        face="Times New Roman">ElephantEye</font>的源程序可以从哪里找到。</dt>
+    <div align="left">
+    <dt><font size="3">　　</font><font size="3"
+        face="Times New Roman">ElephantEye</font><font size="3">的源程序发布在</font><font
+        size="3" face="Times New Roman">SourceForge</font><font
+        size="3">的</font><font size="3" face="Times New Roman">XiangQi
+        Wizard</font><font size="3">项目中，其页面是：</font>
+    </dt>
+    </div><div align="left">
+    <dt><font size="3">　　　　</font><a
+        href="http://sourceforge.net/projects/xqwizard/"
+        target="_blank"><font size="3" face="Times New Roman">http://sourceforge.net/projects/xqwizard/</font></a></dt>
+    </div><div align="left">
+    <dt><font size="3">　　</font><font size="3"
+        face="Times New Roman">ElephantEye</font><font size="3">的版本改进，实时同步地发布在</font><font
+        size="3" face="Times New Roman">SourceForge</font><font
+        size="3">的</font><font size="3" face="Times New Roman">SVN</font><font
+        size="3">站点上，获取地址是：</font> </dt>
+    </div><div align="left">
+    <dt><font size="3">　　　　</font><a
+        href="https://xqwizard.svn.sourceforge.net/svnroot/xqwizard/"
+        target="_blank"><font size="3" face="Times New Roman">https://xqwizard.svn.sourceforge.net/svnroot/xqwizard/</font></a></dt>
+    </div><div align="left">
+    <dt><font size="3">　　读者可以使用</font><font
+        size="3" face="Times New Roman">TortoiseSVN</font><font
+        size="3">等</font><font size="3" face="Times New Roman">SVN</font><font
+        size="3">客户端程序获取到最新的</font><font
+        size="3" face="Times New Roman">(</font><font size="3">跟我完全同步的</font><font
+        size="3" face="Times New Roman">)</font><font size="3">代码，</font><font
+        size="3" face="Times New Roman">TortoiseSVN</font><font
+        size="3">在</font><font size="3" face="Times New Roman">SourceForge</font><font
+        size="3">的页面是：</font> </dt>
+    </div><div align="left">
+    <dt><font size="3">　　　　</font><a
+        href="http://sourceforge.net/projects/tortoisesvn/"
+        target="_blank"><font size="3" face="Times New Roman">http://sourceforge.net/projects/tortoisesvn/</font></a></dt>
+    </div><div align="left">
+    <dt>　</dt>
+    </div><div align="left">
+    <dt><font size="3">　　本文初稿时</font><font size="3"
+        face="Times New Roman">ElephantEye</font><font size="3">的版本为</font><font
+        size="3" face="Times New Roman">1.0x</font><font size="3">，现在已经升级到</font><font
+        size="3" face="Times New Roman">3.1x</font><font size="3">。尽管初稿完成之后又有几次修订，但本文所涉及的很多细节问题都没有再更新过，所以代码看上去可能面目全非了。但是万变不离其中，读者若是注意代码中的注释，就会发现其基本原理与本文是一致的。</font></dt>
+    </div>
+</dl>
+
+<dir>
+    <li>上一篇</li>
+    <li>下一篇　<a href="eleeye_struct.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>二<font
+        face="Times New Roman">)</font>：棋盘结构和着法生成器</a></li>
+</dir>
+<div align="center"><center>
+
+<table border="0">
+    <tr>
+        <td><p align="center"><a href="http://www.xqbase.com/"
+        target="_blank"><img src="xqbase.gif" border="0"
+        width="88" height="31"></a></p>
+        </td>
+    </tr>
+    <tr>
+        <td><a href="http://www.xqbase.com/" target="_blank"><font
+        size="2" face="Arial"><strong>www.xqbase.com</strong></font></a></td>
+    </tr>
+</table>
+</center></div>
+</body>
+</html>

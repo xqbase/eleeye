@@ -1,0 +1,32 @@
+#include <winver.h>
+1                       ICON    DISCARDABLE     "CHN2PGN.ICO"
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 3, 1, 4, 0
+ PRODUCTVERSION 3, 1, 4, 0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "Comments", "CHN2PGN 3.14, (C) 2004-2008 www.elephantbase.net\0"
+            VALUE "CompanyName", "Author: Morning Yellow (* Shanghai Computer Chess Research Center, eMail: webmaster@elephantbase.net)\0"
+            VALUE "FileDescription", "CHN2PGN 3.14\0"
+            VALUE "FileVersion", "3.14\0"
+            VALUE "InternalName", "CHN2PGN 3.14\0"
+            VALUE "LegalCopyright", "CHN2PGN 3.14, (C) 2004-2008 www.elephantbase.net\0"
+            VALUE "LegalTrademarks", "www.elephantbase.net\0"
+            VALUE "OriginalFilename", "CHN2PGN.EXE\0"
+            VALUE "ProductName", "CHN2PGN 3.14\0"
+            VALUE "ProductVersion", "3.14\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

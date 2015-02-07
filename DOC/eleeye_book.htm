@@ -1,0 +1,165 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=gb_2312-80">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>中国象棋程序设计探索(七)：开局库</title>
+</head>
+
+<body background="background.gif">
+
+<dl>
+    <div align="center"><center>
+    <dt><font size="6" face="隶书">中国象棋程序设计探索</font></dt>
+    </center></div><div align="center"><center>
+    <dt>　</dt>
+    </center></div><div align="center"><center>
+    <dt>象棋百科全书网 <font face="Times New Roman">(</font><a
+        href="mailto:webmaster@xqbase.com"><font
+        face="Times New Roman">webmaster@xqbase.com</font></a><font
+        face="Times New Roman">)</font></dt>
+    </center></div><div align="center"><center>
+    <dt><font face="Times New Roman">2005</font>年<font
+        face="Times New Roman">6</font>月初稿，<font
+        face="Times New Roman">2007</font>年<font
+        face="Times New Roman">5</font>月修订</dt>
+    </center></div>
+    <dt>　</dt>
+    <dt><font size="5" face="Arial"><strong>(</strong></font><font
+        size="5" face="楷体_GB2312"><strong>七</strong></font><font
+        size="5" face="Arial"><strong>) </strong></font><font
+        size="5" face="楷体_GB2312"><strong>开局库</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　在阅读本章前，建议读者先阅读<a
+        href="http://www.xqbase.com/" target="_blank">象棋百科全书网</a>中《<a
+        href="outline.htm" target="_blank">对弈程序基本技术</a>》专题的以下几篇译文：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font><a
+        href="advanced_aspiration.htm" target="_blank">其他策略——开局库</a><font
+        face="Times New Roman">(Martin Fierz)</font>。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>7.1 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>象棋程序对开局库的处理</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　开局库是象棋程序中知识含量最多的部分，各种程序的棋力会因为开局库的不同而有所差距。互联网上介绍国际象棋开局库的文章很多，而中国象棋开局库的原理和国际象棋是完全一样的，因此笔者就不作太多的介绍了。</dt>
+    <dt>　　很多国际象棋的程序中，开局库并不被引擎处理，而是由界面来完成的，棋局进入中局脱离棋谱后，才让引擎作搜索。<font
+        face="Times New Roman">ChessBase</font>的系列软件<font
+        face="Times New Roman">Junior</font>和<font
+        face="Times New Roman">Fritz</font>，以及支持<font
+        face="Times New Roman">UCI</font>协议的<font
+        face="Times New Roman">Shredder</font>，都使用这种工作方式，由于它们使用同一套<font
+        face="Times New Roman">ChessBase</font>的界面，因此开局库格式是统一的。由于<font
+        face="Times New Roman">WinBoard</font>本身并不能处理开局库，因此支持<font
+        face="Times New Roman">WinBoard</font>的引擎都具有处理开局库的能力，而且每个引擎都有各自的开局库格式。</dt>
+    <dt>　　而中国象棋目前没有统一的界面，因此也没有统一的开局库格式，开局库一般由引擎来处理，各种引擎有各自定义的开局库格式。</dt>
+    <dt>　　<font face="Times New Roman">ElephantEye</font>早期开局库具有非常明显的特点——它是文本格式的，每一行记录一个着法，依次是着法<font
+        face="Times New Roman">(</font>红色部分<font
+        face="Times New Roman">)</font>、权重<font
+        face="Times New Roman">(</font>绿色部分<font
+        face="Times New Roman">)</font>和局面<font
+        face="Times New Roman">(</font>紫色部分<font
+        face="Times New Roman">)</font>：</dt>
+    <dd>　</dd>
+    <dd><font color="#FF0000">b2e2</font> <font color="#008000">5895</font>
+        <font color="#800080">rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR
+        w - - 0 1</font></dd>
+    <dt>　</dt>
+    <dt>　　由于记录局面时使用<font
+        face="Times New Roman">FEN</font>串，这就增加了开局库的可读性，但同时使开局库变得特别庞大，<font
+        face="Times New Roman">ElephantEye</font>的开局库<font
+        face="Times New Roman">(BOOK.DAT)</font>仅有<font
+        face="Times New Roman">20,000</font>多个着法却达到了<font
+        face="Times New Roman">1.6M</font>。</dt>
+    <dt>　　从<font face="Times New Roman">ElephantEye 2.0</font>以后，每个局面仅占用<font
+        face="Times New Roman">8</font>字节<font
+        face="Times New Roman">(4</font>字节的<font
+        face="Times New Roman">Zobrist</font>键值、<font
+        face="Times New Roman">2</font>字节的着法和<font
+        face="Times New Roman">2</font>字节的权重<font
+        face="Times New Roman">)</font>，而且对称局面作了合并，因此由<font
+        face="Times New Roman">10,000</font>多个着法组成的开局库大小不超过<font
+        face="Times New Roman">100K</font>。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>7.2 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>开局库的制作</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">ElephantEye</font>现有的开局库是从象棋百科全书网上收录的<font
+        face="Times New Roman">8000</font>多局对局中整理出来的，这些对局涵盖了<font
+        face="Times New Roman">1990</font>年到<font
+        face="Times New Roman">2004</font>年的全国顶级象棋比赛<font
+        face="Times New Roman">(</font>团体赛、个人赛、甲级联赛和五羊杯<font
+        face="Times New Roman">)</font>，因此具有代表性。现在简要介绍一下开局库的制作流程：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>把所有的对局中的每个着法解析出来，记录到临时文件中，临时文件的每个着法记录占<font
+        face="Times New Roman">16</font>字节<font
+        face="Times New Roman">(8</font>字节的<font
+        face="Times New Roman">Zobrist</font>键值、<font
+        face="Times New Roman">4</font>字节的着法和<font
+        face="Times New Roman">2</font>字节的权重<font
+        face="Times New Roman">)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>对临时文件的着法记录按<font
+        face="Times New Roman">Zobrist</font>键值<font
+        face="Times New Roman">(</font>第一关键字<font
+        face="Times New Roman">)</font>和着法<font
+        face="Times New Roman">(</font>第二关键字<font
+        face="Times New Roman">)</font>排序；</dt>
+    <dt>　　<font face="Times New Roman">(3) Zobrist</font>键值和着法作关键字，对权重进行叠加；</dt>
+    <dt>　　<font face="Times New Roman">(4) </font>按照笔者观点，权重
+        <font face="Times New Roman">= </font>胜局数 <font
+        face="Times New Roman">×3 + </font>和棋局数 <font
+        face="Symbol">-</font><font face="Times New Roman"> </font>负局数，因此在第<font
+        face="Times New Roman">(1)</font>步中，导致胜局的着法的权重置<font
+        face="Times New Roman">3</font>，和局置<font
+        face="Times New Roman">1</font>，负局置<font
+        face="Symbol">-</font><font face="Times New Roman">1</font>；</dt>
+    <dt>　　<font face="Times New Roman">(5) </font>过滤掉权重小于<font
+        face="Times New Roman">4</font>的着法<font
+        face="Times New Roman">(</font>即收入开局库的着法至少是一胜一和的<font
+        face="Times New Roman">)</font>，把<font
+        face="Times New Roman">Zobrist</font>键值的后<font
+        face="Times New Roman">4</font>字节、<font
+        face="Times New Roman">2</font>字节表示的着法和权重除以<font
+        face="Times New Roman">4</font>的<font
+        face="Times New Roman">16</font>位整数值记录到开局库文件<font
+        face="Times New Roman">(BOOK.DAT)</font>中。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>7.3 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>开局着法的选择</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　象棋程序在处理一个局面时，首先要从开局库中寻找是否有相同的局面，当开局库中找不到局面时，才会调用搜索程序进行思考。<font
+        face="Times New Roman">ElephantEye</font>从开局库中找到着法的过程如下：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>由于开局库是按<font
+        face="Times New Roman">Zobrist</font>键值排序的，因此用二分查找法可以很快找到所有符合的局面及其着法；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>如果当前局面在开局库中没有，那么查找对称局面，找到的着法也要作对称处理；</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>由于开局库中的<font
+        face="Times New Roman">Zobrist</font>键值只有<font
+        face="Times New Roman">4</font>字节，因此有可能产生冲突，必须从着法列表中排除不合理着法；</dt>
+    <dt>　　<font face="Times New Roman">(4) </font>用随机数根据着法的权重选择着法；</dt>
+    <dt>　　<font face="Times New Roman">(5) </font>如果该着法没有构成重复局面，那么将该着法作为最佳着法直接返回。</dt>
+</dl>
+
+<dir>
+    <li>上一篇　<a href="eleeye_parallel.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>六<font
+        face="Times New Roman">)</font>：并行搜索技术探索</a></li>
+    <li>下一篇　<a href="eleeye_ponder.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>八<font
+        face="Times New Roman">)</font>：后台思考和时间策略</a></li>
+</dir>
+<div align="center"><center>
+
+<table border="0">
+    <tr>
+        <td><p align="center"><a
+        href="http://www.xqbase.com/" target="_blank"><img
+        src="xqbase.gif" border="0" width="88"
+        height="31"></a></p>
+        </td>
+    </tr>
+    <tr>
+        <td><a href="http://www.xqbase.com/"
+        target="_blank"><font size="2" face="Arial"><strong>www.xqbase.com</strong></font></a></td>
+    </tr>
+</table>
+</center></div>
+</body>
+</html>

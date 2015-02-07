@@ -1,0 +1,202 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=gb_2312-80">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>中国象棋程序设计探索(十)：实用程序片段</title>
+</head>
+
+<body background="background.gif">
+
+<dl>
+    <div align="center"><center>
+    <dt><font size="6" face="隶书">中国象棋程序设计探索</font></dt>
+    </center></div><div align="center"><center>
+    <dt>　</dt>
+    </center></div><div align="center"><center>
+    <dt>象棋百科全书网 <font face="Times New Roman">(</font><a
+        href="mailto:webmaster@xqbase.com"><font
+        face="Times New Roman">webmaster@xqbase.com</font></a><font
+        face="Times New Roman">)</font></dt>
+    </center></div><div align="center"><center>
+    <dt><font face="Times New Roman">2005</font>年<font
+        face="Times New Roman">6</font>月初稿，<font
+        face="Times New Roman">2007</font>年<font
+        face="Times New Roman">5</font>月修订</dt>
+    </center></div>
+    <dt>　</dt>
+    <dt><font size="5" face="Arial"><strong>(</strong></font><font
+        size="5" face="楷体_GB2312"><strong>十</strong></font><font
+        size="5" face="Arial"><strong>) </strong></font><font
+        size="5" face="楷体_GB2312"><strong>实用程序片段</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">ElephantEye</font>的源程序包里有个<font
+        face="Times New Roman">&lt;base&gt;</font>目录，其中包含了很多实用程序片段，不仅仅是针对象棋程序的。由于程序片段中没有中文注释，所以这里作一下简要的介绍。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>10.1 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>汇编语言</strong></font><font
+        size="4" face="Arial"><strong>(x86asm.h)</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　汇编语言是为了弥补<font
+        face="Times New Roman">C</font>语言的不足，<font
+        face="Times New Roman">&lt;x86asm.h&gt;</font>主要提供以下两方面的功能：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>操控互斥<font
+        face="Times New Roman">(Mutex)</font>变量的原子语句，有<font
+        face="Times New Roman">Increment</font>、<font
+        face="Times New Roman">Decrement</font>、<font
+        face="Times New Roman">Exchange</font>等，用于多线程的调度；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>位搜索，即调用<font
+        face="Times New Roman">BSF(Bit-Scan-Forward)</font>和<font
+        face="Times New Roman">BSR(Bit-Scan-Reverse)</font>指令；</dt>
+    <dt>　　<font face="Times New Roman">(3) 32</font>位和<font
+        face="Times New Roman">64</font>位整数的乘除法和位移，有<font
+        face="Times New Roman">LongMulDiv</font>、<font
+        face="Times New Roman">LongMulMod</font>等，解决了“<font
+        face="Times New Roman">Int64 = Int32 × Int32</font>”等计算问题。</dt>
+    <dt>　　尽管<font face="Times New Roman">Windows</font>和<font
+        face="Times New Roman">Unix</font>也有相应的库函数来支持这些功能，但是汇编语言通常以内联的形式调用，所以速度上会有优势。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>10.2 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>基本功能</strong></font><font
+        size="4" face="Arial"><strong>(base.h)</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">&lt;base.h&gt;</font>包括以下几个实用的函数：</dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>空闲函数<font
+        face="Times New Roman">Idle()</font>：</dt>
+    <dt>　　在程序空闲期间，应该把<font
+        face="Times New Roman">CPU</font>资源交还给系统，这时就要调用空转函数<font
+        face="Times New Roman">Idle()</font>，也可以直接调用<font
+        face="Times New Roman">Windows</font>或<font
+        face="Times New Roman">Unix</font>下都的休眠函数<font
+        face="Times New Roman">(Sleep()</font>或<font
+        face="Times New Roman">usleep())</font>。</dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>伪随机数<font
+        face="Times New Roman">LongRand()</font>：</dt>
+    <dt>　　不使用<font face="Times New Roman">&lt;stdlib.h&gt;</font>中的<font
+        face="Times New Roman">rand()</font>函数，是出于以下几点考虑的：</dt>
+    <dt>　　<font face="Times New Roman">A. rand()</font>函数的有效位数只有<font
+        face="Times New Roman">15</font>位<font
+        face="Times New Roman">(</font>最大数为<font
+        face="Times New Roman">0x7fff)</font>，这远不能满足程序的需要，用多个<font
+        face="Times New Roman">rand()</font>函数来拼凑只是权益之计；</dt>
+    <dt>　　<font face="Times New Roman">B. rand()</font>函数的可靠性无法得到保障，因为我们不知道它的算法；</dt>
+    <dt>　　<font face="Times New Roman">C. </font>如果以<font
+        face="Times New Roman">Zobrist</font>键值的形式来描述开局库中的局面，那么每次给定相同的种子以后，产生的<font
+        face="Times New Roman">Zobrist</font>键值都必须相同。但各种<font
+        face="Times New Roman">C</font>语言的编译器中给出的<font
+        face="Times New Roman">rand()</font>函数，我们无法确定其工作原理是否相同，因此也就不知道它们是否会产生相同的<font
+        face="Times New Roman">Zobrist</font>键值了。</dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>计时函数<font
+        face="Times New Roman">TimerStruct::Init()</font>和<font
+        face="Times New Roman">TimerStruct::GetTimer()</font>：</dt>
+    <dt>　　<font face="Times New Roman">C</font>语言里有很多计时函数，如<font
+        face="Times New Roman">&lt;time.h&gt;</font>中的<font
+        face="Times New Roman">time()</font>、<font
+        face="Times New Roman">ftime()</font>、<font
+        face="Times New Roman">clock()</font>等，笔者认为能达到精确计时功能的只有<font
+        face="Times New Roman">ftime()</font>，为此针对该函数设计了计时器，在调用时可以避开对<font
+        face="Times New Roman">btime</font>结构的直接处理。计时器是类型为<font
+        face="Times New Roman">TimerStruct</font>的对象，成员函数<font
+        face="Times New Roman">Init()</font>把当前时间写入该计时器，而<font
+        face="Times New Roman">GetTimer()</font>返回当前时间和该计时器的差值<font
+        face="Times New Roman">(</font>毫秒<font
+        face="Times New Roman">)</font>。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>10.3 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>管道的行输入和行输出</strong></font><font
+        size="4" face="Arial"><strong>(pipe.h/pipe.cpp)</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">ElephantEye</font>是用“轮转”方式来接收行输入的<font
+        face="Times New Roman">(</font>从<font
+        face="Times New Roman">1.1</font>版本开始<font
+        face="Times New Roman">)</font>。轮转不需要增加线程，只需要每隔一定时间让搜索过程去处理一下接收命令的子过程就可以了。轮转的操作原理在每个操作系统下都是一样的，这种方式甚至能在不支持多任务的<font
+        face="Times New Roman">DOS</font>系统下运行。在轮转中调用<font
+        face="Times New Roman">ReadFile()(Windows</font>的标准库函数<font
+        face="Times New Roman">)</font>或<font
+        face="Times New Roman">read()(UNIX</font>的标准库函数<font
+        face="Times New Roman">)</font>函数时，使用起来要非常小心，通常需要调用检测输入的函数，只有确认标准输入句柄有输入时，才调用读入信息的函数。然而就检测和读取输入信息的操作而言，程序严重依赖于操作系统，有兴趣的读者可注意<font
+        face="Times New Roman">&lt;pipe.cpp&gt;</font>中的“<font
+        face="Times New Roman">#ifdef _WIN32</font>”语句，比较一下<font
+        face="Times New Roman">Windows</font>代码和<font
+        face="Times New Roman">UNIX</font>代码的区别。</dt>
+    <dt>　　如果输入输出的对象不是标准输入输出句柄而是程序，那么必须用管道来连接子进程的标准输入输出句柄和主进程的控制句柄。用<font
+        face="Times New Roman">CreatePipe()(Windows</font>的标准库函数<font
+        face="Times New Roman">)</font>或<font
+        face="Times New Roman">pipe()(UNIX</font>的标准库函数<font
+        face="Times New Roman">)</font>建立管道时，务必要明确输入输出的方向，一个管道有两个句柄，数据总从后一个句柄输入<font
+        face="Times New Roman">(</font>称为“写入端”<font
+        face="Times New Roman">)</font>，从前一个句柄输出<font
+        face="Times New Roman">(</font>称为“读出端”<font
+        face="Times New Roman">)</font>，因此可以用两种方式来使用管道：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>写入端定向为子进程的标准输入句柄，读出端用来向子进程发送指令；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>写入端用来接收子程序的反馈信息，读出端定向为子进程的标准输出句柄。</dt>
+    <dt>　　因此，如果象棋程序的界面要控制引擎，必须建立<font
+        face="Times New Roman">2</font>个管道，产生<font
+        face="Times New Roman">4</font>个句柄，其中<font
+        face="Times New Roman">2</font>个定向给引擎，<font
+        face="Times New Roman">2</font>个用来发送和接收数据，操作非常烦琐。好在<font
+        face="Times New Roman">&lt;pipe.cpp&gt;</font>可自动完成这一切操作，具体应用可参阅<font
+        face="Times New Roman">UCCI2QH(UCCI</font>引擎的浅红象棋适配器<font
+        face="Times New Roman">)</font>和<font
+        face="Times New Roman">UCCILEAG(UCCI</font>引擎联赛模拟器<font
+        face="Times New Roman">)</font>的源程序。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>10.4 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>位处理</strong></font><font
+        size="4" face="Arial"><strong>(popcnt.h/popcnt.cpp)</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　位搜索<font face="Times New Roman">(BitScan)</font>主要用于位棋盘的操作，<font
+        face="Times New Roman">Intel</font>处理器提供了两个指令，即搜索最低位<font
+        face="Times New Roman">(BSF</font>，<font
+        face="Times New Roman">BitScan-Forward)</font>和搜索最高位<font
+        face="Times New Roman">(BSR</font>，<font
+        face="Times New Roman">BitScan-Reverse)</font>的操作，位棋盘的国际象棋程序<font
+        face="Times New Roman">Crafty</font>用了<font
+        face="Times New Roman">FirstOne()</font>和<font
+        face="Times New Roman">LastOne()</font>两个函数，就是专门调用这两个指令的。然而很多试验表明，这两个指令是非常耗时的，而“查表代替计算”会比直接用汇编指令快得多。</dt>
+    <dt>　　<font face="Times New Roman">&lt;bitscan.cpp&gt;</font>为查表计算分配了两个<font
+        face="Times New Roman">64K</font>的表，直接获得<font
+        face="Times New Roman">16</font>位数的位搜索结果，<font
+        face="Times New Roman">32</font>位数则分解成两个<font
+        face="Times New Roman">16</font>位数再分别查表，同时该模块还包含位计数<font
+        face="Times New Roman">(BitCount)</font>的操作，同样用了<font
+        face="Times New Roman">64K</font>的表。用<font
+        face="Times New Roman">&lt;bitscan.h&gt;</font>提供的<font
+        face="Times New Roman">BitScanForward()</font>和<font
+        face="Times New Roman">BitScanReverse()</font>函数做位搜索操作，耗时比直接调用汇编指令少一半，但切记使用查表函数前务必用<font
+        face="Times New Roman">BitScanInit()</font>函数初始化。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>10.5 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>字符串分析</strong></font><font
+        size="4" face="Arial"><strong>(parse.h)</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　提供了字符串比较和文件路径定位的若干实用函数。</dt>
+</dl>
+
+<dir>
+    <li>上一篇　<a href="eleeye_evaluate.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>九<font
+        face="Times New Roman">)</font>：局面评价函数</a></li>
+    <li>下一篇</li>
+</dir>
+<div align="center"><center>
+
+<table border="0">
+    <tr>
+        <td><p align="center"><a href="http://www.xqbase.com/"
+        target="_blank"><img src="xqbase.gif" border="0"
+        width="88" height="31"></a></p>
+        </td>
+    </tr>
+    <tr>
+        <td><a href="http://www.xqbase.com/" target="_blank"><font
+        size="2" face="Arial"><strong>www.xqbase.com</strong></font></a></td>
+    </tr>
+</table>
+</center></div>
+</body>
+</html>

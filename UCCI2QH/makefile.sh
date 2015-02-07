@@ -1,0 +1,1 @@
+g++ -DNDEBUG -O4 -Wall -oUCCI2QH.EXE ../base/pipe.cpp ../eleeye/pregen.cpp ../eleeye/position.cpp ../eleeye/genmoves.cpp ucci2qh.cpp

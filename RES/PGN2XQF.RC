@@ -1,0 +1,32 @@
+#include <winver.h>
+1                       ICON    DISCARDABLE     "PGN2XQF.ICO"
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2, 0, 2, 0
+ PRODUCTVERSION 2, 0, 2, 0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "Comments", "PGN2XQF 2.02, (C) 2004-2007 www.elephantbase.net\0"
+            VALUE "CompanyName", "Author: Morning Yellow (* Shanghai Computer Chess Research Center, eMail: webmaster@elephantbase.net)\0"
+            VALUE "FileDescription", "PGN2XQF 2.02\0"
+            VALUE "FileVersion", "2.02\0"
+            VALUE "InternalName", "PGN2XQF 2.02\0"
+            VALUE "LegalCopyright", "PGN2XQF 2.02, (C) 2004-2007 www.elephantbase.net\0"
+            VALUE "LegalTrademarks", "www.elephantbase.net\0"
+            VALUE "OriginalFilename", "PGN2XQF.EXE\0"
+            VALUE "ProductName", "PGN2XQF 2.02\0"
+            VALUE "ProductVersion", "2.02\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

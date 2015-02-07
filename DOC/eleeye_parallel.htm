@@ -1,0 +1,361 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=gb_2312-80">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>中国象棋程序设计探索(六)：并行搜索技术探索</title>
+</head>
+
+<body background="background.gif">
+
+<dl>
+    <div align="center"><center>
+    <dt><font size="6" face="隶书">中国象棋程序设计探索</font></dt>
+    </center></div><div align="center"><center>
+    <dt>　</dt>
+    </center></div><div align="center"><center>
+    <dt>象棋百科全书网 <font face="Times New Roman">(</font><a
+        href="mailto:webmaster@xqbase.com"><font
+        face="Times New Roman">webmaster@xqbase.com</font></a><font
+        face="Times New Roman">)</font></dt>
+    </center></div><div align="center"><center>
+    <dt><font face="Times New Roman">2005</font>年<font
+        face="Times New Roman">6</font>月初稿，<font
+        face="Times New Roman">2007</font>年<font
+        face="Times New Roman">5</font>月修订</dt>
+    </center></div>
+    <dt>　</dt>
+    <dt><font size="5" face="Arial"><strong>(</strong></font><font
+        size="5" face="楷体_GB2312"><strong>六</strong></font><font
+        size="5" face="Arial"><strong>) </strong></font><font
+        size="5" face="楷体_GB2312"><strong>并行搜索技术探索</strong></font></dt>
+    <dt>　</dt>
+</dl>
+
+<dl>
+    <dt>　　在阅读本章前，建议读者先阅读<a
+        href="http://www.xqbase.com/" target="_blank">象棋百科全书网</a>中《<a
+        href="outline.htm" target="_blank">对弈程序基本技术</a>》专题的以下几篇译文：
+    </dt>
+    <dt>　　<font face="Times New Roman">(1) </font><a
+        href="advanced_aspiration.htm" target="_blank">高级搜索方法——期望窗口</a><font
+        face="Times New Roman">(Bruce Moreland)</font>； </dt>
+    <dt>　　<font face="Times New Roman">(2) </font><a
+        href="advanced_pvs.htm" target="_blank">高级搜索方法——主要变例搜索</a><font
+        face="Times New Roman">(Bruce Moreland)</font>。 </dt>
+</dl>
+
+<dl>
+    <dt>　　并行搜索是博弈搜索技术中最复杂的组成部分，这就是<font
+        face="Times New Roman">ElephantEye</font>没有采用并行技术的原因。尽管如此，笔者还是在这里简单地谈一下对并行搜索的认识。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>6.1 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>并行计算的基本操作</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　并行计算有两种体系，一是单机体系，即一个程序在单机的多个处理器上运行，简称<font
+        face="Times New Roman">SMP(</font>对称多处理器<font
+        face="Times New Roman">)</font>，二是分布式体系，即一个程序在多个计算机联成的网络上运行，简称<font
+        face="Times New Roman">Cluster(</font>计算机集群<font
+        face="Times New Roman">)</font>。两者最大的区别是，单机体系的多个处理器可以共享存储器<font
+        face="Times New Roman">(</font>并且共享同一地址的存储单元<font
+        face="Times New Roman">)</font>，而分布式体系则必须通过网络来交换信息<font
+        face="Times New Roman">(</font>尽管传输速度非常高，通常在<font
+        face="Times New Roman">1000MBPS</font>以上<font
+        face="Times New Roman">)</font>。</dt>
+    <dt>　　由于博弈搜索需要用到置换表，所以特别适合以<font
+        face="Times New Roman">SMP</font>的方式作并行计算。<font
+        face="Times New Roman">Windows</font>、<font
+        face="Times New Roman">UNIX</font>等多任务操作系统都有线程<font
+        face="Times New Roman">(Thread)</font>这个概念，线程是处理器任务的最小单位，一个线程是不可能同时在两个处理器上运行的，建立线程后，操作系统就会自动把新建的线程分配到空闲的处理器上。<font
+        face="Times New Roman">Windows</font>下建立线程的方法是：</dt>
+    <dd>　</dd>
+    <dd>#include &lt;windows.h&gt;</dd>
+    <dd>……</dd>
+    <dd>DWORD ThreadId;</dd>
+    <dd>CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)
+        ThreadEntry, (LPVOID) &amp;ArgList, 0, &amp;ThreadId);</dd>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">UNIX</font>下建立线程的方式是：</dt>
+    <dd>　</dd>
+    <dd>#include &lt;pthread.h&gt;</dd>
+    <dd>……</dd>
+    <dd>pthread_t pthread;</dd>
+    <dd>pthread_attr_t pthread_attr;</dd>
+    <dd>pthread_attr_init(&amp;pthread_attr);</dd>
+    <dd>pthread_attr_setscope(&amp;pthread_attr, PTHREAD_SCOPE_SYSTEM);</dd>
+    <dd>pthread_create(&amp;pthread, &amp;pthread_attr, (void
+        *(*)(void *)) ThreadEntry, (void *) &amp;ArgList);</dd>
+    <dt>　</dt>
+    <dt>　　这里<font face="Times New Roman">ThreadEntry</font>仅仅是某个线程的入口，以便整理参数<font
+        face="Times New Roman">ArgList</font>并且在线程中调用其他函数。例如，一个用递归函数来计算斐波那契数列的并行程序<font
+        face="Times New Roman">(Windows</font>版本<font
+        face="Times New Roman">)</font>：</dt>
+    <dd>　</dd>
+    <dd>static volatile int IdleThreads;</dd>
+    <dd>　</dd>
+    <dd>struct ArgListStruct {</dd>
+    <dd>　volatile bool Active;</dd>
+    <dd>　volatile int Value;</dd>
+    <dd>};</dd>
+    <dd>　</dd>
+    <dd>static void *ThreadEntry(ArgListStruct *ArgListPtr);</dd>
+    <dd>　</dd>
+    <dd>static int Fibonacci(int Arg) {</dd>
+    <dd>　if (Arg &lt; 2) {</dd>
+    <dd>　　return 1;</dd>
+    <dd>　} else {</dd>
+    <dd>　　return Fibonacci(Arg - 2) + Fibonacci(Arg - 1);</dd>
+    <dd>　}</dd>
+    <dd>}</dd>
+    <dd>　</dd>
+    <dd>static int FibonacciSMP(int Arg) {</dd>
+    <dd>　DWORD ThreadId;</dd>
+    <dd>　int Result;</dd>
+    <dd>　ArgListStruct ArgList;</dd>
+    <dd>　if (Arg &lt; 2) {</dd>
+    <dd>　　return 1;</dd>
+    <dd>　} else {</dd>
+    <dd>　　if (Arg &gt; 30) {</dd>
+    <dd>　　　if (Decrement(&amp;IdleThreads) &lt; 0) {</dd>
+    <dd>　　　　Increment(&amp;IdleThreads);</dd>
+    <dd>　　　　return FibonacciSMP(Arg - 2) + FibonacciSMP(Arg
+        - 1);</dd>
+    <dd>　　　} else {</dd>
+    <dd>　　　　ArgList.Value = Arg - 2;</dd>
+    <dd>　　　　ArgList.Active = true;</dd>
+    <dd>　　　　CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)
+        ThreadEntry, (LPVOID) &amp;ArgList, 0, &amp;ThreadId);</dd>
+    <dd>　　　　Result = FibonacciSMP(Arg - 1);</dd>
+    <dd>　　　　while (ArgList.Active) {</dd>
+    <dd>　　　　　Idle();</dd>
+    <dd>　　　　}</dd>
+    <dd>　　　　return Result + ArgList.Value;</dd>
+    <dd>　　　}</dd>
+    <dd>　　} else {</dd>
+    <dd>　　　return Fibonacci(Arg - 2) + Fibonacci(Arg - 1);</dd>
+    <dd>　　}</dd>
+    <dd>　}</dd>
+    <dd>}</dd>
+    <dd>　</dd>
+    <dd>static void *ThreadEntry(ArgListStruct *ArgListPtr) {</dd>
+    <dd>　ArgListPtr-&gt;Value = FibonacciSMP(ArgListPtr-&gt;Value);</dd>
+    <dd>　ArgListPtr-&gt;Active = false;</dd>
+    <dd>　Increment(&amp;IdleThreads);</dd>
+    <dd>　return NULL;</dd>
+    <dd>}</dd>
+    <dt>　</dt>
+    <dt>　　由于<font face="Times New Roman">Fibonacci()</font>函数的递归形式如同二叉树一样扩展开来，所以当处理器有空闲时，就可以把其中一个分枝交给另一个线程，这个操作称为递归树的分割<font
+        face="Times New Roman">(Split)</font>。为此程序需要维护变量<font
+        face="Times New Roman">IdleThreads</font>来判断是否还有空闲的处理器，对该变量的操作必须用<font
+        face="Times New Roman">Increment()</font>和<font
+        face="Times New Roman">Decrement()</font>函数<font
+        face="Times New Roman">(</font>即<font
+        face="Times New Roman">Intel</font>处理器的<font
+        face="Times New Roman">INC</font>和<font
+        face="Times New Roman">DEC</font>原子指令，参阅<font
+        face="Times New Roman">&lt;x86asm.h&gt;)</font>，以保证不会因为有两个线程同时对该变量操作而发生错误，这样的共享变量都应该标记为<font
+        face="Times New Roman">volatile</font>属性，以避免编译器对这些变量作优化。</dt>
+    <dt>　　由于线程的维护需要消耗额外的处理器资源，所以并非每个递归结点要作分割的尝试，以上这段程序的核心问题尽管是<font
+        face="Times New Roman">FibonacciSMP()</font>的递归，但当递归树不太大<font
+        face="Times New Roman">(</font>参数不超过<font
+        face="Times New Roman">30)</font>时，调用单纯的递归函数<font
+        face="Times New Roman">Fibonacci()</font>会得到更高的效率。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>6.2 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>加锁技术和非加锁技术</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　如果两个线程同时存取同一存储单元，就有可能产生错误，为此必须建立预防错误的机制，通常的措施是加锁<font
+        face="Times New Roman">(Lock)</font>。一个比较简单的加锁方法是调用函数<font
+        face="Times New Roman">Exchange()(</font>即<font
+        face="Times New Roman">Intel</font>处理器的<font
+        face="Times New Roman">XCHG</font>原子指令，参阅<font
+        face="Times New Roman">&lt;x86asm.h&gt;)</font>，因为两个线程的原子语句是不可能同时存取同一存储单元的<font
+        face="Times New Roman">(</font>正因为如此，处理器对存储单元作<font
+        face="Times New Roman">INC</font>、<font
+        face="Times New Roman">DEC</font>、<font
+        face="Times New Roman">XCHG</font>等操作就需要考虑冲突，所以比较耗时<font
+        face="Times New Roman">)</font>。在某块共享的存储单元中，第一个变量就是加锁标志，<font
+        face="Times New Roman">false</font>表示未加锁，<font
+        face="Times New Roman">true</font>表示加锁。加锁时只要用<font
+        face="Times New Roman">true</font>和加锁标志交换，换出<font
+        face="Times New Roman">false</font>就表示加锁成功<font
+        face="Times New Roman">(</font>原来加锁标志是<font
+        face="Times New Roman">false</font>，交换后变成<font
+        face="Times New Roman">true)</font>，该线程就获得对共享单元的操作权，换出<font
+        face="Times New Roman">true</font>则表示加锁失败<font
+        face="Times New Roman">(</font>原来加锁标志是<font
+        face="Times New Roman">true</font>，交换后仍旧是<font
+        face="Times New Roman">true)</font>。对共享单元操作完毕后，再将加锁标志设成<font
+        face="Times New Roman">false</font>来解锁。</dt>
+    <dt>　　并行计算的博弈程序会偶尔出现一种情况，即两个线程同时存取同一置换表项，为避免错误可以使用加锁技术：</dt>
+    <dd>　</dd>
+    <dd>struct HashRecord {</dd>
+    <dd>　volatile int Lock;</dd>
+    <dd>　……</dd>
+    <dd>};</dd>
+    <dd>　</dd>
+    <dd>void RecordHash / ProbeHash (……) {</dd>
+    <dd>　HashRecord *HashPtr = HashList + ZobristKey % HashSize;</dd>
+    <dd>　while (Exchange(&amp;HashPtr-&gt;Lock, true)) {</dd>
+    <dd>　}</dd>
+    <dd>　……</dd>
+    <dd>　HashPtr-&gt;Lock = false;</dd>
+    <dd>}</dd>
+    <dt>　</dt>
+    <dt>　　但是，并行国际象棋程序的典范<font
+        face="Times New Roman">Crafty</font>并没有这样做，而是采用了不加锁的技术，来避免置换表的存取冲突。简而言之，该算法的思想是当置换表项的校验码存取正确时，必须保证局面信息也存取正确<font
+        face="Times New Roman">(</font>但允许校验码存取不正确，此时探索置换表的例程就会跳过以后的操作而不会引发错误<font
+        face="Times New Roman">)</font>。</dt>
+    <dt>　　为此<font face="Times New Roman">Crafty</font>的<font
+        face="Times New Roman">128</font>位置换表项定义为两个<font
+        face="Times New Roman">64</font>位数<font
+        face="Times New Roman">W1</font>和<font
+        face="Times New Roman">W2</font>，<font
+        face="Times New Roman">W1</font>是局面信息，而<font
+        face="Times New Roman">W2</font>存储了<font
+        face="Times New Roman">W1</font>和校验码的异或值，探测置换表项时，校验码必须由<font
+        face="Times New Roman">W1</font>和<font
+        face="Times New Roman">W2</font>的异或值求得，这样一旦<font
+        face="Times New Roman">W1</font>读取错误，就得不到正确的校验码，换句话说，校验码的正确就保证了局面信息的正确。</dt>
+    <dt>　　<font face="Times New Roman">Crafty</font>的这种不加锁算法是针对<font
+        face="Times New Roman">64</font>位处理器而设计的，这种技术当然也适用于<font
+        face="Times New Roman">32</font>位处理器，而笔者认为<font
+        face="Times New Roman">32</font>位处理器还有更为简单的处理方式，即设计如下的置换表项：</dt>
+    <dd>　</dd>
+    <dd>struct HashRecord {</dd>
+    <dd>　long CheckSum1, PositionInfo1, PositionInfo2, CheckSum2;</dd>
+    <dd>};</dd>
+    <dt>　</dt>
+    <dt>　　以上<font face="Times New Roman">128</font>位的置换表项由<font
+        face="Times New Roman">4</font>个<font
+        face="Times New Roman">32</font>位单元组成，存取置换表时四个单元依次读取或写入。只要位于首尾的校验码都能存取正确，就确保了中间两个局面信息单元的正确。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>6.3 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>搜索树的分割策略</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">Alpha-Beta</font>搜索是递归式的，因此作并行计算时可以仿照上面提到的<font
+        face="Times New Roman">Fibonacci()</font>递归的例子，但这里有两个问题需要解决，一是某个子线程产生<font
+        face="Times New Roman">Beta</font>截断时，如何通知其他子线程中止搜索，二是考虑什么样的结点需要分割，什么样的结点不需要分割。这两个问题都是并行搜索技术的难点，为此<font
+        face="Times New Roman">Crafty</font>花了大量的代码来解决这些问题，其作者<font
+        face="Times New Roman">Robert Hyatt</font>对<font
+        face="Times New Roman">Crafty</font>的并行算法<font
+        face="Times New Roman">DTS(Dynamic Tree Split</font>，即搜索树的动态分割算法<font
+        face="Times New Roman">)</font>有专门的介绍。这里笔者只简单地介绍第二个问题，即搜索树的分割策略。</dt>
+    <dt>　　通常<font face="Times New Roman">Alpha-Beta</font>搜索树的结点可分为三个类型，即<font
+        face="Times New Roman">PV</font>结点、<font
+        face="Times New Roman">Beta</font>结点和<font
+        face="Times New Roman">Alpha</font>结点，并且有明确的定义——搜索值在窗口<font
+        face="Times New Roman">(Alpha, Beta)</font>之间的是<font
+        face="Times New Roman">PV</font>结点<font
+        face="Times New Roman">(</font>根据最小<font
+        face="Times New Roman">-</font>最大原理，最佳着法的搜索值必须落在窗口内<font
+        face="Times New Roman">)</font>，搜索值达到或超过<font
+        face="Times New Roman">Beta(</font>即高出边界<font
+        face="Times New Roman">)</font>的是<font
+        face="Times New Roman">Beta</font>结点<font
+        face="Times New Roman">(</font>仅需要有一个着法超过<font
+        face="Times New Roman">Beta</font>即可<font
+        face="Times New Roman">)</font>，搜索值未能超过<font
+        face="Times New Roman">Alpha(</font>即低出边界<font
+        face="Times New Roman">)</font>的是<font
+        face="Times New Roman">Alpha</font>结点<font
+        face="Times New Roman">(</font>所有着法都不能超过<font
+        face="Times New Roman">Alpha)</font>。由此可以看出，<font
+        face="Times New Roman">PV</font>结点和<font
+        face="Times New Roman">Alpha</font>结点都需要搜索所有的着法，而<font
+        face="Times New Roman">Beta</font>结点在最好的情况下只要搜索一个着法即可。</dt>
+    <dt>　　如果能在搜索之前预测出结点的类型，就可以决定是否对该结点作分割了，在<font
+        face="Times New Roman">Crafty</font>及其相关论文中，预测的三类结点命名为<font
+        face="Times New Roman">PV</font>结点、<font
+        face="Times New Roman">Cut</font>结点和<font
+        face="Times New Roman">All</font>结点，分别对应刚才提到的<font
+        face="Times New Roman">PV</font>结点、<font
+        face="Times New Roman">Beta</font>结点和<font
+        face="Times New Roman">Alpha</font>结点。显然，<font
+        face="Times New Roman">PV</font>结点和<font
+        face="Times New Roman">All</font>结点是有分割价值的，只要预测正确，这些结点下的全部着法都要搜索，不会因为产生截断而浪费搜索时间，而对<font
+        face="Times New Roman">Cut</font>结点作分割是没有意义的，因为目前的搜索技术使得<font
+        face="Times New Roman">Cut</font>结点的第一着法截断率高达<font
+        face="Times New Roman">80%</font>以上，对结点作分割只会浪费处理器资源。</dt>
+    <dt>　　至于如何来预测结点类型，在<font
+        face="Times New Roman">Crafty</font>及其相关论文也有介绍，但是另一个国际象棋程序<font
+        face="Times New Roman">Fruit</font>则描绘得更加明确，其分类策略是：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>根结点总是<font
+        face="Times New Roman">PV</font>结点。</dt>
+    <dt>　　<font face="Times New Roman">(2) PV</font>结点采用<font
+        face="Times New Roman">PVS</font>算法，即第一个着法以后首先尝试零窗口的搜索，由于期望每个着法都低出边界<font
+        face="Times New Roman">(</font>即子结点都高出边界<font
+        face="Times New Roman">)</font>，所以预测这些零窗口的结点为<font
+        face="Times New Roman">Cut</font>结点。</dt>
+    <dt>　　<font face="Times New Roman">(3) Cut</font>结点和<font
+        face="Times New Roman">All</font>结点是互相交替的，即<font
+        face="Times New Roman">Cut</font>结点的子结点是<font
+        face="Times New Roman">All</font>结点，<font
+        face="Times New Roman">All</font>结点的子结点是<font
+        face="Times New Roman">Cut</font>结点，空着裁剪同样这么处理。</dt>
+    <dt>　　<font face="Times New Roman">(4) Cut</font>结点的第一个子结点<font
+        face="Times New Roman">(All</font>结点<font
+        face="Times New Roman">)</font>如果不能产生截断，就说明原来预测的<font
+        face="Times New Roman">Cut</font>结点是错的，应该是<font
+        face="Times New Roman">All</font>结点，那么以后的子结点都预测为<font
+        face="Times New Roman">Cut</font>结点。换句话说，不管预测是否正确，<font
+        face="Times New Roman">Cut</font>结点的第一个子结点<font
+        face="Times New Roman">(</font>不包括空着裁剪<font
+        face="Times New Roman">)</font>是<font
+        face="Times New Roman">All</font>结点，其余的结点<font
+        face="Times New Roman">(</font>如果有必要搜索的话<font
+        face="Times New Roman">)</font>仍旧是<font
+        face="Times New Roman">Cut</font>结点。</dt>
+    <dt>　　<font face="Times New Roman">(5) PV</font>结点不采用各种形式的向前裁剪<font
+        face="Times New Roman">(Null-Move</font>、<font
+        face="Times New Roman">History</font>、<font
+        face="Times New Roman">Futility</font>等<font
+        face="Times New Roman">)</font>。</dt>
+    <dt>　　由于<font face="Times New Roman">Fruit</font>不支持并行搜索，所以<font
+        face="Times New Roman">Cut</font>结点和<font
+        face="Times New Roman">All</font>结点没有区别，但给并行搜索留下了伏笔。</dt>
+    <dt>　　我们关注的是<font face="Times New Roman">PV</font>结点的分割，显然<font
+        face="Times New Roman">PV</font>结点是有必要分割的，因为分割越早，新的线程所处理的搜索树就越大，并行效率就越高。<font
+        face="Times New Roman">(</font>注意<font
+        face="Times New Roman">Fibonacci()</font>递归的例子，为保证效率只有参数充分大时才会分割，<font
+        face="Times New Roman">Alpha-Beta</font>递归也一样。<font
+        face="Times New Roman">)</font>但是<font
+        face="Times New Roman">PV</font>结点的分割会遇到一个问题——窗口宽度可能会变窄，如果让所有的子结点都作相同窗口的搜索，就无法体现<font
+        face="Times New Roman">Alpha-Beta</font>算法的效率了。为此，<font
+        face="Times New Roman">Crafty</font>对根结点的迭代加深过程用了期望窗口<font
+        face="Times New Roman">(Aspiration Window)</font>，即让所有的子结点都搜索一个较窄的窗口，这要比直接分割<font
+        face="Times New Roman">(</font><font face="Symbol">-</font><font
+        face="Times New Roman">MATE_VALUE, MATE_VALUE)</font>有效得多。而另一个极端的做法是<font
+        face="Times New Roman">MTD(<em>f</em>)</font>的零窗口，根结点从一开始就预测为<font
+        face="Times New Roman">Cut</font>或<font
+        face="Times New Roman">All</font>结点，即可实施有效的分割，这就是<font
+        face="Times New Roman">MTD(<em>f</em>)</font>算法在并行计算上的优势。</dt>
+</dl>
+
+<dir>
+    <li>上一篇　<a href="eleeye_horizon.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>五<font
+        face="Times New Roman">)</font>：克服水平线效应</a></li>
+    <li>下一篇　<a href="eleeye_book.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>七<font
+        face="Times New Roman">)</font>：开局库</a></li>
+</dir>
+<div align="center"><center>
+
+<table border="0">
+    <tr>
+        <td><p align="center"><a
+        href="http://www.xqbase.com/" target="_blank"><img
+        src="xqbase.gif" border="0" width="88"
+        height="31"></a></p>
+        </td>
+    </tr>
+    <tr>
+        <td><a href="http://www.xqbase.com/"
+        target="_blank"><font size="2" face="Arial"><strong>www.xqbase.com</strong></font></a></td>
+    </tr>
+</table>
+</center></div>
+</body>
+</html>

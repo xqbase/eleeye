@@ -1,0 +1,295 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=gb_2312-80">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>中国象棋程序设计探索(四)：启发算法</title>
+</head>
+
+<body background="background.gif">
+
+<dl>
+    <div align="center"><center>
+    <dt><font size="6" face="隶书">中国象棋程序设计探索</font></dt>
+    </center></div><div align="center"><center>
+    <dt>　</dt>
+    </center></div><div align="center"><center>
+    <dt>象棋百科全书网 <font face="Times New Roman">(</font><a
+        href="mailto:webmaster@xqbase.com"><font
+        face="Times New Roman">webmaster@xqbase.com</font></a><font
+        face="Times New Roman">)</font></dt>
+    </center></div><div align="center"><center>
+    <dt><font face="Times New Roman">2005</font>年<font
+        face="Times New Roman">6</font>月初稿，<font
+        face="Times New Roman">2007</font>年<font
+        face="Times New Roman">5</font>月修订</dt>
+    </center></div>
+    <dt>　</dt>
+    <dt><font size="5" face="Arial"><strong>(</strong></font><font
+        size="5" face="楷体_GB2312"><strong>四</strong></font><font
+        size="5" face="Arial"><strong>) </strong></font><font
+        size="5" face="楷体_GB2312"><strong>启发算法</strong></font></dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>4.1 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>启发算法概述</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">Laram</font>&eacute;<font
+        face="Times New Roman">e</font>的《<a
+        href="basic_search.htm" target="_blank">国际象棋程序设计<font
+        face="Times New Roman">(</font>四<font
+        face="Times New Roman">)</font>：基本搜索方法</a>》连载中曾经提到，<font
+        face="Times New Roman">Alpha-Beta</font>搜索的结点数，数量相当于最笨的“最小<font
+        face="Times New Roman">-</font>最大”搜索的平方根。严格来说，如果搜索树在每个结点的分枝因子都是<font
+        face="Times New Roman"><em>b</em></font>，那么<font
+        face="Times New Roman"><em>d</em></font>层<font
+        face="Times New Roman">Alpha-Beta</font>搜索在最好情况下搜索的结点数是：<font
+        face="Times New Roman"><em>b</em><sup>[<em>d</em> / 2]</sup>
+        + <em>b</em><sup>[(<em>d </em>+ 1) / 2] </sup></font><font
+        face="Symbol">-</font><font face="Times New Roman"> 1(</font>都是指叶子结点，其中<font
+        face="Times New Roman"><em>b</em><sup>[<em>d</em> / 2] </sup></font><font
+        face="Symbol">-</font><font face="Times New Roman"> 1</font>个是<font
+        face="Times New Roman">Alpha</font>结点，<font
+        face="Times New Roman"><em>b</em><sup>[(<em>d</em> + 1) /
+        2] </sup></font><font face="Symbol">-</font><font
+        face="Times New Roman"> 1</font>个是<font
+        face="Times New Roman">Beta</font>结点，<font
+        face="Times New Roman">1</font>个是<font
+        face="Times New Roman">PV</font>结点<font
+        face="Times New Roman">)</font>，这样的搜索树称为“最小树”。因此，让<font
+        face="Times New Roman">Alpha-Beta</font>的搜索树尽可能地接近最小树是非常重要的，相关的措施在广义上都称为“启发”<font
+        face="Times New Roman">(Heuristic)</font>。</dt>
+    <dt>　　由于<font face="Times New Roman">Alpha-Beta</font>搜索对着法顺序非常敏感，因此对着法进行排序，是体现<font
+        face="Times New Roman">Alpha-Beta</font>算法效率的关键所在，这就是我们狭义上所说的启发，即通过排序尽量首先搜索最好的着法。着法启发通常有置换表启发、吃子启发、杀手着法启发和历史表启发这四种最为常用的算法。广义上的启发还可以通过改变窗口宽度来实现，因为改变窗口宽度也可以提高<font
+        face="Times New Roman">Alpha-Beta</font>的截断效率，因此很多<font
+        face="Times New Roman">Alpha-Beta</font>的变种算法实际上都属于启发这个范畴，例如期望窗口、<font
+        face="Times New Roman">PVS</font>和<font
+        face="Times New Roman">MTD(<em>f</em>)</font>。</dt>
+    <dt>　　本章我们只讨论着法启发。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>4.2 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>静态着法启发</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　静态着法启发是指不依赖于搜索结果的着法排序方式，即程序分析了某个局面后，不经过搜索，就大致应该知道哪些着法应该首先尝试。在上面提到的<font
+        face="Times New Roman">4</font>种着法启发中，吃子启发是静态着法启发，因为吃子着法数量不多，而且往往很多情况能立刻得到实惠，所以需要首先考虑。而置换表启发、杀手着法启发和历史表启发，都依赖于以前搜索的结果，因此属于动态着法启发的范畴。</dt>
+    <dt>　　在<font face="Times New Roman">ElephantEye</font>中，吃子着法是有选择的，即“表面上立刻能得到实惠”的着法。为此<font
+        face="Times New Roman">ElephantEye</font>用了一个称为<font
+        face="Times New Roman">MVV(LVA)</font>的策略，在被吃子有保护的情况下，考虑<font
+        face="Times New Roman">MVV(</font>被吃子价值<font
+        face="Times New Roman">)-LVA(</font>攻击子价值<font
+        face="Times New Roman">)</font>的值，而在被吃子没保护的情况下，只考虑<font
+        face="Times New Roman">MVV</font>的值，然后对这种策略产生的<font
+        face="Times New Roman">MVV(LVA)</font>值作排序，并选择<font
+        face="Times New Roman">MVV(LVA)</font>大于零的着法首先搜索。为此，<font
+        face="Times New Roman">&lt;genmoves.cpp&gt;</font>提供了一个称为“<font
+        face="Times New Roman">Protected()</font>”的函数，对某个棋子是否有保护作快速判断。</dt>
+    <dt>　　吃子启发仅仅是静态着法启发的最明显的表现，事实上这类启发还体现在其他地方。当搜索进行初期，置换表、杀手着法、历史表等动态着法启发还没起作用，此时着法生成的顺序就起了主要作用。因此，在着法生成时，考虑首先生成车的着法，最后生成帅<font
+        face="Times New Roman">(</font>将<font
+        face="Times New Roman">)</font>的着法，往往是很有效的；而在生成车的着法时，首先生成车向前走的着法，然后生成车向后走的着法，也能起到一定的启发作用。因此，这种静态着法启发也是很多程序所考虑的。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>4.3</strong></font><font
+        size="4" face="楷体_GB2312"><strong>
+        置换表启发和低出</strong></font><font size="4"
+        face="Arial"><strong>(</strong></font><font size="4"
+        face="楷体_GB2312"><strong>高出</strong></font><font
+        size="4" face="Arial"><strong>)</strong></font><font
+        size="4" face="楷体_GB2312"><strong>边界的修正</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　在置换表中保存一个着法，一方面可以利用置换表来获得主要变例，但最主要的作用是置换表启发。在探测置换表时，尽管局面命中但深度没达到要求时，至少可以得到一个着法，这个着法应该首先搜索，几乎所有的象棋程序都是这么做的。哪些着法应该被保存到置换表中呢？实践证明，<font
+        face="Times New Roman">PV</font>结点中的最佳着法，以及<font
+        face="Times New Roman">Beta</font>结点中产生截断的着法，都应该被保存到置换表中，而<font
+        face="Times New Roman">Alpha</font>结点尽管也要保存，但不要保存着法<font
+        face="Times New Roman">(</font>置换表着法是空的<font
+        face="Times New Roman">)</font>，因为<font
+        face="Times New Roman">Alpha</font>结点的每个着法都返回<font
+        face="Times New Roman">Alpha</font>值，我们不知道哪个着法是最好的。</dt>
+    <dt>　　显然，当探测置换表时找到<font
+        face="Times New Roman">PV</font>结点或<font
+        face="Times New Roman">Beta</font>结点<font
+        face="Times New Roman">(</font>但深度不够<font
+        face="Times New Roman">)</font>，就会有需要首先搜索的置换表着法。那么，找到<font
+        face="Times New Roman">Alpha</font>结点时，是否还会有置换表着法呢？中国象棋程序“纵马奔流”采取了一个称为“低出<font
+        face="Times New Roman">(</font>高出<font
+        face="Times New Roman">)</font>边界的修正”策略，使得某些<font
+        face="Times New Roman">Alpha</font>结点也存在置换表着法。</dt>
+    <dt>　　“低出边界的修正”指的是，当某个<font
+        face="Times New Roman">Alpha</font>结点覆盖某个相同局面的置换表项时，保留该表项的最佳着法。相应地，当某个<font
+        face="Times New Roman">Beta</font>结点没能覆盖某个相同局面的置换表项<font
+        face="Times New Roman">(</font>该表项记录了一个没有着法的<font
+        face="Times New Roman">Alpha</font>结点<font
+        face="Times New Roman">)</font>时，只把这个<font
+        face="Times New Roman">Beta</font>结点的截断着法写入该置换表项，称为“高出边界的修正”。在前一章介绍的双层置换表的覆盖策略中，第一层<font
+        face="Times New Roman">(</font>深度优先<font
+        face="Times New Roman">)</font>需要考虑“低出边界的修正”和“高出边界的修正”，而第二层<font
+        face="Times New Roman">(</font>始终覆盖<font
+        face="Times New Roman">)</font>则只需要考虑“低出边界的修正”。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>4.4 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>杀手着法启发</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　杀手着法启发<font face="Times New Roman">(Killer
+        Heuristic)</font>是基于这样一个思想，搜索某个结点时首先尝试着法<font
+        face="Times New Roman"><em>a</em><sub>1</sub></font>，由<font
+        face="Times New Roman"><em>a</em><sub>1</sub></font>的后续着法<font
+        face="Times New Roman"><em>b</em><sub>1</sub></font>产生截断，回到原来的结点时再搜索<font
+        face="Times New Roman"><em>a</em><sub>1</sub></font>的兄弟结点<font
+        face="Times New Roman"><em>a</em><sub>2</sub></font>时，如果<font
+        face="Times New Roman"><em>b</em><sub>1</sub></font>仍旧是<font
+        face="Times New Roman"><em>a</em><sub>2</sub></font>的后续着法，那么<font
+        face="Times New Roman"><em>b</em><sub>1</sub></font>很有可能也会产生截断。</dt>
+    <dt>　　采用杀手着法启发时，需要构造一个称为<font
+        face="Times New Roman">KillerMoves[MaxPly]</font>的全局数组。搜索到深度为<font
+        face="Times New Roman">Ply</font>的结点时，首先尝试<font
+        face="Times New Roman">KillerMoves[Ply]</font>的着法<font
+        face="Times New Roman">(</font>前提是该着法在当前局面下是合理的<font
+        face="Times New Roman">)</font>，搜索完这个结点时，把产生截断的着法<font
+        face="Times New Roman">(</font>如果有的话<font
+        face="Times New Roman">)</font>记录到<font
+        face="Times New Roman">KillerMoves[Ply]</font>。由此产生的效果，就是当亲兄弟结点没有杀手着法时，会找到堂兄弟结点的杀手着法。</dt>
+    <dt>　　大多数程序会为每层分配<font
+        face="Times New Roman">2</font>个杀手着法，并采用先进先出的方式管理，即：</dt>
+    <dd>　</dd>
+    <dd>if (CutMove != KillerMoves[Ply][0]) {</dd>
+    <dd>　KillerMoves[Ply][1] = KillerMoves[Ply][0];</dd>
+    <dd>　KillerMoves[Ply][0] = CutMove;</dd>
+    <dd>}</dd>
+    <dt>　</dt>
+    <dt>　　而搜索结点时，先搜索最近保存的杀手着法<font
+        face="Times New Roman">(KillerMoves[Ply][0])</font>，再搜索比较旧的那个<font
+        face="Times New Roman">(KillerMoves[Ply][1])</font>。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>4.5 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>历史表启发</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　“历史表启发”<font face="Times New Roman">(History
+        Heuristic)</font>是杀手着法启发的扩展，历史表记录的是整个搜索树中着法的好坏。历史表的思想是：搜索树中某个结点上的一个好的着法，对于其他结点可能也是好的。没有什么非常可靠的理由来支持这个思想，但根据历史表来排序着法，总比不排序要好得多，而且实践证明这是一种效果非常好的启发算法，几乎每个程序都用到。</dt>
+    <dt>　　历史表的处理方法，在各个程序中都有所差异，主要反映在以下几个方面：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>产生全部着法时，是否完全根据历史表来排序。很多程序先产生吃子的着法，用<font
+        face="Times New Roman">MVV/LVA</font>来排序，然后产生不吃子的着法，根据历史表来排序。目前<font
+        face="Times New Roman">ElephantEye</font>在生成不吃子的着法后就按照历史表来排序，被排序的着法包括吃子启发没有搜索到的吃子着法和不吃子的着法。</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>找到好的着法时，在历史表中增加多少值。<font
+        face="Times New Roman">ElephantEye</font>采用通常的<font
+        face="Times New Roman"><em>n</em><sup>2</sup>(<em>n</em></font>为当前结点需要搜索的深度<font
+        face="Times New Roman">)</font>的策略，而也有的程序设计师偏爱传统的<font
+        face="Times New Roman">2<sup><em>n</em></sup></font>。如果不确定哪个更好，那么不妨试试斐波那契数列<font
+        face="Times New Roman">(</font>即<font
+        face="Times New Roman">1</font>、<font
+        face="Times New Roman">2</font>、<font
+        face="Times New Roman">3</font>、<font
+        face="Times New Roman">5</font>、<font
+        face="Times New Roman">8</font>……<font
+        face="Times New Roman">)</font>。</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>什么样的着法算是好的着法。<font
+        face="Times New Roman">ElephantEye</font>认为产生<font
+        face="Times New Roman">Beta</font>截断的着法和<font
+        face="Times New Roman">PV</font>结点中最好的着法都是好的着法<font
+        face="Times New Roman">(</font>杀手着法也是这样认定的<font
+        face="Times New Roman">)</font>，而且这两类着法在历史表中增加同样多的值。也有的程序则为PV结点的最好着法增加更多的值。</dt>
+    <dt>　　<font face="Times New Roman">(4) </font>历史表应该用什么样的结构。<font
+        face="Times New Roman">ElephantEye</font>只设立一个<font
+        face="Times New Roman">[256][256]</font>的数组，红方和黑方的着法都记录在这个数组中，更多的程序则是红方着法和黑方着法分别记录的，例如国际象棋程序<font
+        face="Times New Roman">Fruit</font>用的历史表是<font
+        face="Times New Roman">[12][64]</font>的，前一个指标代表兵种，后一个指标代表目标格。</dt>
+    <dt>　</dt>
+    <dt>　　尽管历史表处理起来非常简单，笔者也不打算列出操作历史表的代码，但是历史表中出现的问题远不止以上这几点。</dt>
+    <dt>　　很重要的一点是：历史表受置换表和迭代加深的影响很大。根结点做浅一层搜索时，历史表中已经记录了丰富的信息，因此深一层的搜索就可以充分利用这些信息来做更好的启发。反过来，如果根结点不做迭代加深，直接开始深层次的搜索，那么历史表启发的效率就会大幅度下降，因此这就引发出清空历史表的问题。</dt>
+    <dt>　　思考完一个着法时是否清空置换表，各个程序有不同的做法。<font
+        face="Times New Roman">ElephantEye</font>是彻底清空置换表的，因此下一次搜索时根结点总是迭代加深的。而是否清空历史表，则是更复杂的问题，它与是否清空置换表有关，<font
+        face="Times New Roman">ElephantEye</font>在清空置换表的同时也清空历史表。</dt>
+    <dt>　　如果每次搜索时不清空置换表，那么根结点浅层分值在置换表中已经找到，程序就直接做深层次的搜索，如果历史表是空的，那么历史表的启发效率就非常低了，因此不清空置换表而去清空历史表是不明智的做法，这样会导致“历史表信息丢失”。那么就不对历史表作处理吗？历史表中的数据会日积月累，而大部分数据是早期搜索时留下的，有可能开局时的历史着法信息被保留到了残局，这样当然更会影响历史表启发，导致“历史表信息污染”。</dt>
+    <dt>　　笔者提出一个“历史表衰减”的方法，程序每次思考一个新的局面时，如果不清空置换表，那么就对历史表中的每项数据做一个衰减，可以尝试衰减为原来的一半或<font
+        face="Times New Roman">1/4</font>，在“历史表信息丢失”和“历史表信息污染”之间作一个权衡。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>4.6 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>总体着法顺序</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　以上我们主要介绍了四种启发算法，即吃子启发、置换表启发、杀手着法启发和历史表启发。现在我们要考虑如何把这四种算法结合起来。<font
+        face="Times New Roman">ElephantEye</font>和大多数程序一样，采用了以下的顺序：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>置换表启发；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>吃子启发<font
+        face="Times New Roman">(</font>之前生成所有吃子着法<font
+        face="Times New Roman">)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>杀手着法启发；</dt>
+    <dt>　　<font face="Times New Roman">(4) </font>历史表启发<font
+        face="Times New Roman">(</font>之前生成所有不吃子着法<font
+        face="Times New Roman">)</font>；</dt>
+    <dt>　　这个顺序用一个<font face="Times New Roman">MoveSortStruct</font>的结构来维护<font
+        face="Times New Roman">(</font>参阅<font
+        face="Times New Roman">&lt;movesort.cpp&gt;)</font>，使得搜索例程变得格外简单：</dt>
+    <dd>　</dd>
+    <dd>Move = MoveSort.Next();</dd>
+    <dd>while (Move != NullMove) {</dd>
+    <dd>　MakeMove(Move);</dd>
+    <dd>　……</dd>
+    <dd>　Move = MoveSort.Next();</dd>
+    <dd>}</dd>
+    <dt>　</dt>
+    <dt>　　我们感兴趣的是<font face="Times New Roman">Next()</font>这个例程，它要求按照以上<font
+        face="Times New Roman">4</font>个不同的启发阶段来给出着法，但当某个阶段没有着法时，不跳出例程而直接进入下一个阶段<font
+        face="Times New Roman">(</font>最后一个阶段则直接给出<font
+        face="Times New Roman">NullMove)</font>。<font
+        face="Times New Roman">ElephantEye</font>和<font
+        face="Times New Roman">Crafty</font>、<font
+        face="Times New Roman">Fruit</font>等程序一样，用了不带<font
+        face="Times New Roman">break</font>的<font
+        face="Times New Roman">switch...case</font>这样一个炫技。<font
+        face="Times New Roman">MoveSortStruct</font>中有一个称为<font
+        face="Times New Roman">Phase(</font>阶段<font
+        face="Times New Roman">)</font>的变量，记录了当前的启发阶段，除了以上<font
+        face="Times New Roman">4</font>个阶段外，还包括两个：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>在吃子启发前，是生成吃子着法的阶段；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>在历史表启发前，是生成不吃子着法的阶段。</dt>
+    <dd>　</dd>
+    <dd>MoveStruct MoveSortStruct::Next(void) {</dd>
+    <dd>　switch (Phase) {</dd>
+    <dd>　case HASH_MOVE:</dd>
+    <dd>　　Phase = GEN_CAP_MOVES;</dd>
+    <dd>　　if (HashMove != NullMove) {</dd>
+    <dd>　　　return HashMove;</dd>
+    <dd>　　}</dd>
+    <dd>　　// 直接进入下一个&quot;case&quot;，下同。</dd>
+    <dd>　case GEN_CAP_MOVES:</dd>
+    <dd>　　Phase = CAP_MOVES;</dd>
+    <dd>　　MoveNum = GenCapMoves(MoveList);</dd>
+    <dd>　case CAP_MOVES:</dd>
+    <dd>　　i ++;</dd>
+    <dd>　　if (i &lt; MoveNum) {</dd>
+    <dd>　　　return MoveList[i];</dd>
+    <dd>　　}</dd>
+    <dd>　case KILLER_MOVE:</dd>
+    <dd>　　Phase = GEN_NONCAP_MOVES;</dd>
+    <dd>　　if (KillerMove != NullMove &amp;&amp; LegalMove(KillerMove))
+        {</dd>
+    <dd>　　　return KillerMove;</dd>
+    <dd>　　}</dd>
+    <dd>　　……</dd>
+    <dd>　}</dd>
+    <dd>}</dd>
+</dl>
+
+<dir>
+    <li>上一篇　<a href="eleeye_search.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>三<font
+        face="Times New Roman">)</font>：搜索和置换表</a></li>
+    <li>下一篇　<a href="eleeye_horizon.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>五<font
+        face="Times New Roman">)</font>：克服水平线效应</a></li>
+</dir>
+<div align="center"><center>
+
+<table border="0">
+    <tr>
+        <td><p align="center"><a
+        href="http://www.xqbase.com/" target="_blank"><img
+        src="xqbase.gif" border="0" width="88"
+        height="31"></a></p>
+        </td>
+    </tr>
+    <tr>
+        <td><a href="http://www.xqbase.com/"
+        target="_blank"><font size="2" face="Arial"><strong>www.xqbase.com</strong></font></a></td>
+    </tr>
+</table>
+</center></div>
+</body>
+</html>

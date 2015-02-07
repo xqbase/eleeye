@@ -1,0 +1,87 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=gb_2312-80">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>处理器符点运算能力测试程序(NETWORK.CPP)说明</title>
+</head>
+
+<body background="BGROUND.GIF">
+
+<dl>
+    <div align="center"><center>
+    <dt><font size="6" face="隶书">电阻网络计算程序说明</font></dt>
+    </center></div><div align="center"><center>
+    <dt>　</dt>
+    </center></div><div align="center"><center>
+    <dt>象棋百科全书网 <font face="Times New Roman">(</font><a
+        href="mailto:webmaster@elephantbase.net"><font
+        face="Times New Roman">webmaster@elephantbase.net</font></a><font
+        face="Times New Roman">)</font>　<font
+        face="Times New Roman">2006</font>年<font
+        face="Times New Roman">4</font>月</dt>
+    </center></div><div align="center"><center>
+    <dt>　</dt>
+    </center></div><div align="center"><center>
+    <dt><img src="NETWORK.GIF" width="131" height="135"></dt>
+    </center></div><div align="center"><center>
+    <dt>　</dt>
+    </center></div>
+    <dt>　　这是一个用矩阵计算电阻网络表观电阻值的程序，具体的原理可参阅《电阻网络的简化方法》一文。我写的这个程序只涉及到矩阵最简单最基本的算法——高斯列主元消除法，而效率更高的算法应当使用稀疏矩阵，由于能力所限我没有去做。尽管这个程序在算法上有很大的缺陷，但用来测试处理器的符点运算能力是足够了，因为矩阵运算中会涉及到大量加减乘除的符点运算。</dt>
+    <dt>　　至于程序的由来，还必须从一类高中物理竞赛题目说起，如上图所示的二维无限电阻网络，每一小段<font
+        face="Times New Roman">(</font>接点之间的线路，如<font
+        face="Times New Roman">F</font>到<font
+        face="Times New Roman">G)</font>的电阻是<font
+        face="Times New Roman">1</font><font face="Symbol">W</font>，求相邻两接点间<font
+        face="Times New Roman">(</font>如<font
+        face="Times New Roman">F</font>和<font
+        face="Times New Roman">G</font>间<font
+        face="Times New Roman">)</font>的表观电阻。这个问题并不简单，由于<font
+        face="Times New Roman">F</font>和<font
+        face="Times New Roman">G</font>不仅仅由一段<font
+        face="Times New Roman">1</font><font face="Symbol">W</font>的电阻相连，电流还可以走其他的路径，如<font
+        face="Times New Roman">F-B-C-G</font>，所以表观电阻肯定小于<font
+        face="Times New Roman">1</font><font face="Symbol">W</font>。那么这道题到底如何解呢？</dt>
+    <dt>　　可以假设对<font face="Times New Roman">F</font>点输入<font
+        face="Times New Roman">1A</font>的恒定电流，在<font
+        face="Times New Roman">G</font>点输出，求得<font
+        face="Times New Roman">FG</font>两点间的电压就能算出表观电阻。这个模型可以分解成两部分，一是电流从<font
+        face="Times New Roman">F</font>点流入，在网络的无穷远处流出。由于网络的对称性，电流在<font
+        face="Times New Roman">F</font>点会平均分解成<font
+        face="Times New Roman">4</font>个支路<font
+        face="Times New Roman">FE</font>、<font
+        face="Times New Roman">FB</font>、<font
+        face="Times New Roman">FG</font>和<font
+        face="Times New Roman">FJ</font>，支路上的电流都是<font
+        face="Times New Roman">0.25A</font>。再考察电流从网络的无穷远处流入，在<font
+        face="Times New Roman">G</font>点流出的情况，同样在<font
+        face="Times New Roman">FG</font>支路上的电流也是<font
+        face="Times New Roman">0.25A(</font>和前一种情况一样，电流从<font
+        face="Times New Roman">F</font>流向<font
+        face="Times New Roman">G)</font>。把这两种情况叠加，就构成了现在电流从<font
+        face="Times New Roman">F</font>流入、从<font
+        face="Times New Roman">G</font>流出的情况，此时每个支路上的电流也将是两种情况对应支路上的叠加，因此<font
+        face="Times New Roman">FG</font>支路上的电流是<font
+        face="Times New Roman">0.5A</font>。这样就很容易得到，<font
+        face="Times New Roman">FG</font>两点的电压是<font
+        face="Times New Roman">0.5V</font>，因此<font
+        face="Times New Roman">FG</font>两点在整个网络中的表观电阻是<font
+        face="Times New Roman">0.5</font><font face="Symbol">W</font>。</dt>
+    <dt>　　尽管我自认为高中物理已经滚瓜烂熟了，但是进入大学后我收到一位高中同学的求教，看似类似的题目却让我不知所措。题目类型是和上题一模一样的电阻网络，而所求的却不是接点<font
+        face="Times New Roman">FG</font>间的表观电阻，而是在接点<font
+        face="Times New Roman">FK</font>间的！事实上这道崭新的题目根本无法用原来的思路来解，如果当我们仍旧固执地考虑，向<font
+        face="Times New Roman">F</font>点输入<font
+        face="Times New Roman">1A</font>的恒定电流并在无穷远处输出，电流在<font
+        face="Times New Roman">F</font>点平均分成<font
+        face="Times New Roman">4</font>个支路，那么在<font
+        face="Times New Roman">G</font>点却遇到了麻烦，即便<font
+        face="Times New Roman">GC</font>和<font
+        face="Times New Roman">GK</font>具有对称性，我们也不知道电流是多少，因为<font
+        face="Times New Roman">GH</font>上的电流也是未知的。</dt>
+    <dt>　　六七年过去了，尽管我还是没有解开这个谜团，但是这类问题已经不再捆绕我了，当严格的求解无法得到精确答案时，我们至少可以通过数值求解的办法得到相对准确的结果。在这个程序中，我构造了一个<font
+        face="Times New Roman">2<em>n</em>x2<em>n</em></font>的电阻网络，借助矩阵求对角的两点间的表观电阻，当<font
+        face="Times New Roman"><em>n</em></font>充分大时，求得的电阻值就会非常接近无限网络的结果。</dt>
+</dl>
+</body>
+</html>

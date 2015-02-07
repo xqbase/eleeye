@@ -1,0 +1,1085 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=gb_2312-80">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>中国象棋电脑应用规范(五)：中国象棋通用引擎协议</title>
+</head>
+
+<body background="background.gif">
+
+<dl>
+    <div align="center"><center>
+    <dt><font size="6" face="隶书">中国象棋通用引擎协议</font><font
+        size="4" face="楷体_GB2312"><strong>　版本：</strong></font><font
+        size="4" face="Arial"><strong>3.0</strong></font></dt>
+    </center></div><div align="center"><center>
+    <dt>　</dt>
+    </center></div><div align="center"><center>
+    <dt>象棋百科全书网 <font face="Times New Roman">(</font><a
+        href="mailto:webmaster@xqbase.com"><font
+        face="Times New Roman">webmaster@xqbase.com</font></a><font
+        face="Times New Roman">)</font></dt>
+    </center></div><div align="center"><center>
+    <dt><font face="Times New Roman">2004</font>年<font
+        face="Times New Roman">12</font>月初稿，<font
+        face="Times New Roman">2007</font>年<font
+        face="Times New Roman">11</font>月修订</dt>
+    </center></div>
+    <dt>　</dt>
+    <dt><font size="4" face="楷体_GB2312"><strong>一、概述</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　中国象棋通用引擎协议<font
+        face="Times New Roman">(Universal Chinese Chess Protocol</font>，简称<font
+        face="Times New Roman">UCCI)</font>，是一种象棋界面和象棋引擎之间的基于文本的通讯协议。设立中国象棋通用引擎协议的目的有：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>使一个“可视化象棋软件”可以使用不同的“核心智能部件”，这些核心智能部件称为“引擎”，凡是遵循<font
+        face="Times New Roman">UCCI</font>的引擎，都可以被该可视化象棋软件<font
+        face="Times New Roman">(</font>也称为“界面”<font
+        face="Times New Roman">)</font>所调用；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>针对所有遵循<font
+        face="Times New Roman">UCCI</font>的引擎，都可以开发不同的界面，使其具有不同的功能。</dt>
+    <dt>　　这样，“可视化象棋软件”和“核心智能部件”实现了分离，使得一部分程序设计师能专注于前者<font
+        face="Times New Roman">(</font>界面<font
+        face="Times New Roman">)</font>的开发，而另一部分程序设计师能专注于后者<font
+        face="Times New Roman">(</font>引擎<font
+        face="Times New Roman">)</font>的开发，让中国象棋软件的设计工作系统化、分工化，提高软件设计效率。</dt>
+    <dt>　　<font face="Times New Roman">UCCI</font>是模仿国际象棋的<font
+        face="Times New Roman">UCI</font>来制定的。<font
+        face="Times New Roman">UCCI</font>是开放式的协议，并且具有<font
+        face="Times New Roman">UCI</font>的所有特点，具体反映在象棋百科全书网所收录的以下文章中：</dt>
+    <dt><font size="3">　　</font><font size="3"
+        face="Times New Roman">(1) </font><a href="protocol1.htm"
+        target="_blank"><font size="3">国际象棋引擎：穿越困惑</font><font
+        size="3" face="Times New Roman">(</font><font size="3">转载自《国际象棋译文苑》</font><font
+        size="3" face="Times New Roman">)</font></a><font
+        size="3">；</font></dt>
+    <dt><font size="3">　　</font><font size="3"
+        face="Times New Roman">(2) </font><a href="protocol2.htm"
+        target="_blank"><font size="3">国际象棋引擎协议历史</font><font
+        size="3" face="Times New Roman">(</font><font size="3">转载自《国际象棋译文苑》</font><font
+        size="3" face="Times New Roman">)</font></a><font
+        size="3">；</font></dt>
+    <dt><font size="3">　　</font><font size="3"
+        face="Times New Roman">(3) </font><a href="uci.htm"
+        target="_blank"><font size="3">国际象棋通用引擎协议</font></a><font
+        size="3">。</font></dt>
+    <dt>　</dt>
+    <dt><font size="3">　　</font><font size="3"
+        face="Times New Roman">UCCI</font><font size="3">自诞生以来不断在发展和更新，但保持了对早期版本的兼容。</font></dt>
+</dl>
+
+<dl>
+    <dt><font size="3">　　</font><font size="3"
+        face="Times New Roman">3.0</font><font size="3">版较</font><font
+        size="3" face="Times New Roman">2.3</font><font size="3">版改进的内容有：</font></dt>
+</dl>
+
+<ul>
+    <li><font size="3">建议取消</font><font color="#0000FF"
+        size="3" face="Times New Roman">option</font><font
+        size="3">反馈中的</font><font color="#0000FF"
+        size="3" face="Times New Roman">repetition</font><font
+        size="3">和</font><font color="#0000FF" size="3"
+        face="Times New Roman">drawmoves</font><font size="3">选项，将</font><font
+        color="#0000FF" size="3" face="Times New Roman">selectivity</font><font
+        size="3">选项改成</font><font color="#0000FF"
+        size="3" face="Times New Roman">randomness</font><font
+        size="3">，增加</font><font color="#0000FF" size="3"
+        face="Times New Roman">promotion</font><font size="3">选项。</font></li>
+</ul>
+
+<dl>
+    <dt><font size="3">　　</font><font size="3"
+        face="Times New Roman">2.3</font><font size="3">版较</font><font
+        size="3" face="Times New Roman">2.2</font><font size="3">版改进的内容有：</font></dt>
+</dl>
+
+<ul>
+    <li><font size="3">建议采用“毫秒”作为唯一的时间单位，参阅</font><font
+        color="#0000FF" size="3" face="Times New Roman">option</font><font
+        size="3">反馈中的</font><font color="#0000FF"
+        size="3" face="Times New Roman">usemillisec</font><font
+        size="3">选项。</font></li>
+</ul>
+
+<dl>
+    <dt><font size="3">　　以后</font><font size="3"
+        face="Times New Roman">UCCI</font><font size="3">还会不定期地更新，并继续保持对早期版本的兼容。</font><font
+        size="3" face="Times New Roman">UCCI</font><font size="3">界面和引擎设计者可访问以下资源，来获得最新的</font><font
+        size="3" face="Times New Roman">UCCI</font><font size="3">版本：</font></dt>
+    <dt><font size="3">　　　　</font><a
+        href="http://www.xqbase.com/protocol/cchess_ucci.htm"
+        target="_blank"><font size="3" face="Times New Roman">http://www.xqbase.com/protocol/cchess_ucci.htm</font></a></dt>
+    <dt>　</dt>
+    <dt><font size="4" face="楷体_GB2312"><strong>二、通讯方法</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　不管是<font face="Times New Roman">Windows</font>还是<font
+        face="Times New Roman">UNIX</font>平台，能被界面调用的引擎都必须是编译过的可执行文件，它跟界面之间通过“标准输入”和“标准输出”<font
+        face="Times New Roman">(</font>即<font
+        face="Times New Roman">C/C++</font>语言中的<font
+        face="Times New Roman">stdin</font>和<font
+        face="Times New Roman">stdout)</font>通道来通讯。如果引擎从<font
+        face="Times New Roman">Windows</font>平台移植到<font
+        face="Times New Roman">UNIX</font>平台，那么需要重新编译源代码<font
+        face="Times New Roman">(</font>管道操作的程序也需要作适当修改<font
+        face="Times New Roman">)</font>，或使用跨平台接口。</dt>
+    <dt>　　作为界面的设计，要启动一个引擎，<font
+        face="Times New Roman">Windows</font>平台下可用<font
+        face="Times New Roman">CreateProcess()</font>函数，<font
+        face="Times New Roman">UNIX</font>平台下可用<font
+        face="Times New Roman">fork()</font>和<font
+        face="Times New Roman">exec()</font>函数，然后重定向到一个输入管道和一个输出管道，具体操作可参阅<font
+        face="Times New Roman">WinBoard/XBoard</font>源程序的<font
+        face="Times New Roman">StartChildProcess()</font>函数，或参阅中国象棋引擎<font
+        face="Times New Roman">ElephantEye</font>源程序的<font
+        face="Times New Roman">&lt;pipe.cpp&gt;</font>模块。</dt>
+    <dt>　　作为引擎的设计，通讯比界面略为简单<font
+        face="Times New Roman">(</font>只需要对<font
+        face="Times New Roman">stdin</font>和<font
+        face="Times New Roman">stdout</font>操作<font
+        face="Times New Roman">)</font>，只在检查<font
+        face="Times New Roman">stdin</font>是否有输入时较为麻烦，具体操作可参阅<font
+        face="Times New Roman">Crafty</font>源程序的<font
+        face="Times New Roman">&lt;utility.c&gt;</font>模块的<font
+        face="Times New Roman">CheckInput()</font>函数，或参阅中国象棋引擎<font
+        face="Times New Roman">ElephantEye</font>源程序的<font
+        face="Times New Roman">&lt;pipe.cpp&gt;</font>模块。</dt>
+    <dt>　</dt>
+    <dt>　　通常，界面向引擎发送的信息称为“指令”，而引擎向界面发送的信息称为“反馈”。在<font
+        face="Times New Roman">UCCI</font>中，不管是指令还是反馈，都是以“行”为单位的，即每条指令和反馈都必须以“回车”<font
+        face="Times New Roman">(</font>即<font
+        face="Times New Roman">C/C++</font>语言中的<font
+        face="Times New Roman">'\n')</font>结束。</dt>
+    <dt>　　注意：引擎用缓冲方式发出反馈<font
+        face="Times New Roman">(</font>即<font
+        face="Times New Roman">C/C++</font>语言中直接将字符串写入<font
+        face="Times New Roman">stdout)</font>，那么每输出一行都必须用<font
+        face="Times New Roman">fflush()</font>语句刷新缓冲区。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="楷体_GB2312"><strong>三、引擎的状态</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">UCCI</font>引擎在启动后，有三种状态。</dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>引导状态。</dt>
+    <dt>　　引擎启动时，即进入引导状态。此时引擎只是等待和捕捉界面的输入，而界面必须用<font
+        color="#FF0000" face="Times New Roman">ucci</font>指令让引擎进入接收其他<font
+        face="Times New Roman">UCCI</font>指令的空闲状态<font
+        face="Times New Roman">(</font>稍后会提到<font
+        face="Times New Roman">)</font>。当然，引擎也可以保留使用其他协议的权利，例如引擎允许第一条有效指令是<font
+        color="#FF0000" face="Times New Roman">cxboard</font>，这样引擎就转而进入<font
+        face="Times New Roman">CXBoard</font>状态。</dt>
+    <dt>　　收到<font color="#FF0000" face="Times New Roman">ucci</font>只后，引擎要完成一系列初始化工作，以输出<font
+        color="#0000FF" face="Times New Roman">ucciok</font>的反馈作为初始化结束的标志，进入空闲状态。如果引导状态下<font
+        face="Times New Roman">UCCI</font>引擎收到其他指令，则可以退出。</dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>空闲状态。</dt>
+    <dt>　　该状态下引擎没有思考<font
+        face="Times New Roman">(</font>即几乎不占用<font
+        face="Times New Roman">CPU</font>资源<font
+        face="Times New Roman">)</font>，而只是等待和捕捉界面的输入<font
+        face="Times New Roman">(</font>和引导状态类似<font
+        face="Times New Roman">)</font>，接收这样几类指令：<font
+        face="Times New Roman">A. </font>设置引擎选项<font
+        face="Times New Roman">(</font><font color="#FF0000"
+        face="Times New Roman">setoption</font>指令<font
+        face="Times New Roman">)</font>，<font
+        face="Times New Roman">B. </font>设置引擎的内置局面<font
+        face="Times New Roman">(</font>即让引擎思考的局面<font
+        face="Times New Roman">)</font>及其禁止着法<font
+        face="Times New Roman">(</font><font color="#FF0000"
+        face="Times New Roman">position</font>和<font
+        color="#FF0000" face="Times New Roman">banmoves</font>指令<font
+        face="Times New Roman">)</font>，<font
+        face="Times New Roman">C. </font>让引擎思考<font
+        face="Times New Roman">(</font><font color="#FF0000"
+        face="Times New Roman">go</font>指令<font
+        face="Times New Roman">)</font>，<font
+        face="Times New Roman">D. </font>退出<font
+        face="Times New Roman">(</font><font color="#FF0000"
+        face="Times New Roman">quit</font>指令<font
+        face="Times New Roman">)</font>。</dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>思考状态。</dt>
+    <dt>　　引擎收到<font color="#FF0000"
+        face="Times New Roman">go</font>指令后，即进入思考状态，以输出<font
+        color="#0000FF" face="Times New Roman">bestmove</font>或<font
+        color="#0000FF" face="Times New Roman">nobestmove</font>的反馈作为思考状态结束的标志<font
+        face="Times New Roman">(</font>回到空闲状态<font
+        face="Times New Roman">)</font>。该状态下引擎将满负荷运转<font
+        face="Times New Roman">(CPU</font>资源占用率接近<font
+        face="Times New Roman">100%)</font>，但仍旧需要捕捉界面的输入<font
+        face="Times New Roman">(</font>只有在批处理模式下不会捕捉界面的输入<font
+        face="Times New Roman">)</font>，接收两类指令：<font
+        face="Times New Roman">A. </font>中止思考<font
+        face="Times New Roman">(</font><font color="#FF0000"
+        face="Times New Roman">stop</font>指令<font
+        face="Times New Roman">)</font>，<font
+        face="Times New Roman">B. </font>改变思考方式<font
+        face="Times New Roman">(</font><font color="#FF0000"
+        face="Times New Roman">ponderhit</font>指令<font
+        face="Times New Roman">)</font>。</dt>
+    <dt>　　<font color="#FF0000" face="Times New Roman">go</font>指令只决定了引擎将按照什么思考方式来思考<font
+        face="Times New Roman">(</font>即限定思考的深度，或限定思考的局面个数，或限定思考的时间<font
+        face="Times New Roman">)</font>，而思考的局面则必须通过前面输入的<font
+        color="#FF0000" face="Times New Roman">position</font>指令来告诉引擎。</dt>
+    <dt>　</dt>
+    <dt>　　其他注意事项有：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>引擎只有在接收到<font
+        color="#FF0000" face="Times New Roman">go</font>指令后才开始思考。即便引擎支持后台思考，在输出着法<font
+        face="Times New Roman">(</font>反馈<font
+        color="#0000FF" face="Times New Roman">bestmove</font><font
+        face="Times New Roman">)</font>后也不会自动进行，而是要由界面发送<font
+        color="#FF0000" face="Times New Roman">go ponder</font>指令，让引擎以后台思考方式进行思考。</dt>
+    <dt>　　<font face="Times New Roman">(2) </font><font
+        color="#0000FF" face="Times New Roman">bestmove</font>的反馈并不改变引擎的内置局面，如果界面让引擎走棋，就必须读取<font
+        color="#0000FF" face="Times New Roman">bestmove</font>反馈的着法，并在界面的局面上走完这一步<font
+        face="Times New Roman">(</font>当然，界面也可以走别的着法<font
+        face="Times New Roman">)</font>，再由<font
+        color="#FF0000" face="Times New Roman">position</font>指令把新的局面告诉引擎。</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>如果对局是计时的，那么每次思考时都必须用<font
+        color="#FF0000" face="Times New Roman">go</font>指令设定时钟，引擎仅仅根据时钟来决定分配多少时间来思考，回到空闲状态后时钟就失效了，必须由界面扣去引擎思考的时间<font
+        face="Times New Roman">(</font>从发送<font
+        color="#FF0000" face="Times New Roman">go</font>指令起到收到<font
+        color="#0000FF" face="Times New Roman">bestmove</font>反馈结束<font
+        face="Times New Roman">)</font>，在下次发送<font
+        color="#FF0000" face="Times New Roman">go</font>指令时把新的时钟告诉引擎。</dt>
+    <dt>　　<font face="Times New Roman">(4) </font>启用“批处理”模式时，引擎在思考状态下就不接收指令。批处理模式适合用重定向方式调试引擎，例如一个输入文件含有以下指令集：</dt>
+    <dd>　</dd>
+    <dd><font face="Times New Roman">1: </font><font
+        color="#FF0000" face="Times New Roman">ucci</font></dd>
+    <dd><font face="Times New Roman">2: </font><font
+        color="#FF0000" face="Times New Roman">setoption batch
+        true</font></dd>
+    <dd><font face="Times New Roman">3: </font><font
+        color="#FF0000" face="Times New Roman">position fen &lt;fen_1&gt;</font></dd>
+    <dd><font face="Times New Roman">4: </font><font
+        color="#FF0000" face="Times New Roman">go depth 10</font></dd>
+    <dd><font face="Times New Roman">5: </font><font
+        color="#FF0000" face="Times New Roman">position fen &lt;fen_2&gt;</font></dd>
+    <dd><font face="Times New Roman">6: </font><font
+        color="#FF0000" face="Times New Roman">go depth 10</font></dd>
+    <dd><font face="Times New Roman">7: </font><font
+        color="#FF0000" face="Times New Roman">quit</font></dd>
+    <dt>　</dt>
+    <dt>　　第<font face="Times New Roman">4</font>行以后引擎即进入思考状态，由于处于批处理模式，引擎反馈<font
+        color="#0000FF" face="Times New Roman">bestmove</font>后回到空闲状态，才会继续接收以后的指令。如果没有第<font
+        face="Times New Roman">2</font>行的启用批处理模式，那么第<font
+        face="Times New Roman">4</font>行以后的指令都将在思考状态接收，而对于思考状态，这些指令都是无效的。</dt>
+    <dt>　　<font face="Times New Roman">(5) </font>如果界面搞错了引擎的状态，在引擎的思考状态向界面发送<font
+        color="#FF0000" face="Times New Roman">quit</font>指令，那么引擎最好能终止思考并立即退出，以避免界面无休止地等待引擎的退出。</dt>
+    <dt>　　<font face="Times New Roman">(6) </font>如果界面搞错了引擎的状态，在引擎的空闲状态向引擎发送<font
+        color="#FF0000" face="Times New Roman">stop</font>指令，那么引擎最好能反馈一个<font
+        color="#0000FF" face="Times New Roman">nobestmove</font>，以避免界面无休止地等待引擎的反馈。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="楷体_GB2312"><strong>四、着法和棋盘的表示</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　界面告诉引擎哪些着法是禁手<font
+        face="Times New Roman">(</font><font color="#FF0000"
+        face="Times New Roman">banmoves</font>指令<font
+        face="Times New Roman">)</font>，或者引擎回答界面应该走哪个着法<font
+        face="Times New Roman">(</font><font color="#0000FF"
+        face="Times New Roman">bestmove</font>反馈<font
+        face="Times New Roman">)</font>，这样的着法都用<font
+        face="Times New Roman">4</font>个字符<font
+        face="Times New Roman">(</font>简化的<font
+        face="Times New Roman">ICCS</font>格式，参阅《<a
+        href="cchess_move.htm" target="_blank">中国象棋电脑应用规范<font
+        face="Times New Roman">(</font>二<font
+        face="Times New Roman">)</font>：着法表示</a>》一文<font
+        face="Times New Roman">)</font>表示，即<font
+        face="Times New Roman">ICCS</font>格式去掉中间的横线，并改成小写，例如<font
+        face="Times New Roman">h2e2</font>。</dt>
+    <dt>　　界面用<font color="#FF0000"
+        face="Times New Roman">position</font>指令把局面告诉引擎时，应该使用<font
+        face="Times New Roman">FEN</font>串<font
+        face="Times New Roman">(</font>写法参阅《<a
+        href="cchess_fen.htm" target="_blank">中国象棋电脑应用规范<font
+        face="Times New Roman">(</font>三<font
+        face="Times New Roman">)</font>：<font
+        face="Times New Roman">FEN</font>文件格式</a>》一文<font
+        face="Times New Roman">)</font>。但是对局中会遇到循环局面，引擎也必须考虑其对策，因此<font
+        face="Times New Roman">FEN</font>串并不能完全反映局面信息，必须使用<font
+        face="Times New Roman">FEN</font>串<font
+        face="Times New Roman">(</font>当前局面前第一个不吃子的局面<font
+        face="Times New Roman">)</font>和后续着法相结合的方法表示局面。例如，开局以后走了以下<font
+        face="Times New Roman">4</font>步：</dt>
+    <dd>　<table border="0">
+            <tr>
+                <td><font size="3">1. 炮二平五</font></td>
+                <td>　</td>
+                <td><font size="3">炮8平5</font></td>
+                <td>　</td>
+                <td><font size="3">2. 炮五进四</font></td>
+                <td>　</td>
+                <td><font size="3">士4进5</font></td>
+            </tr>
+        </table>
+    </dd>
+</dl>
+
+<dl>
+    <dt>　　如果把这<font face="Times New Roman">4</font>步棋涉及的<font
+        face="Times New Roman">5</font>个局面都告诉引擎，那么指令依次是：</dt>
+    <dd>　</dd>
+    <dd><font face="Times New Roman">1: </font><font
+        color="#FF0000" face="Times New Roman">position fen
+        rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR
+        w - - 0 1</font></dd>
+    <dd><font face="Times New Roman">2: </font><font
+        color="#FF0000" face="Times New Roman">position fen
+        rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR
+        w - - 0 1 moves h2e2</font></dd>
+    <dd><font face="Times New Roman">3: </font><font
+        color="#FF0000" face="Times New Roman">position fen
+        rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR
+        w - - 0 1 moves h2e2 h7e7</font></dd>
+    <dd><font face="Times New Roman">4: </font><font
+        color="#FF0000" face="Times New Roman">position fen
+        rnbakabnr/9/1c2c4/p1p1C1p1p/9/9/P1P1P1P1P/1C7/9/RNBAKABNR
+        b - - 0 2</font></dd>
+    <dd><font face="Times New Roman">5: </font><font
+        color="#FF0000" face="Times New Roman">position fen
+        rnbakabnr/9/1c2c4/p1p1C1p1p/9/9/P1P1P1P1P/1C7/9/RNBAKABNR
+        b - - 0 2 moves d9e8</font></dd>
+    <dt>　</dt>
+    <dt>　　其中第<font face="Times New Roman">4</font>行更换了<font
+        face="Times New Roman">FEN</font>串，因为该局面前一个着法是吃子着法。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="楷体_GB2312"><strong>五、指令和反馈</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　按照惯例，指令用红色表示，反馈用蓝色表示。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><strong>1. </strong></font><font
+        color="#FF0000" face="Arial"><strong>ucci</strong></font></dt>
+    <dt>　　引导状态的指令。这是引擎启动后，界面需要给引擎发送的第一条指令，通知引擎现在使用的协议是<font
+        face="Times New Roman">UCCI</font>。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>2. </b></font><font color="#0000FF"
+        face="Arial"><b>id {name | copyright | author | user}
+        &lt;</b></font><font color="#0000FF" face="楷体_GB2312"><b>信息</b></font><font
+        color="#0000FF" face="Arial"><b>&gt;</b></font></dt>
+    <dt>　　引导状态的反馈。显示引擎的版本号、版权、作者和授权用户，例如：
+    </dt>
+    <dd><font color="#0000FF" face="Times New Roman">id name
+        ElephantEye 1.6 Beta</font>，说明引擎的版本号是<font
+        face="Times New Roman">ElephantEye 1.6 Beta</font>；</dd>
+    <dd><font color="#0000FF" face="Times New Roman">id copyright
+        2004-2006 www.xqbase.com</font>，说明引擎的版权属于<font
+        face="Times New Roman">www.xqbase.com</font>所有；</dd>
+    <dd><font color="#0000FF" face="Times New Roman">id author
+        Morning Yellow</font>，说明引擎的作者是<font
+        face="Times New Roman">Morning Yellow</font>；</dd>
+    <dd><font color="#0000FF" face="Times New Roman">id user
+        ElephantEye Test Team</font>，说明引擎授权给用户<font
+        face="Times New Roman">ElephantEye Test Team</font>使用。</dd>
+    <dt>　</dt>
+    <dt><font size="3" face="Arial"><b>3. </b></font><font
+        color="#0000FF" size="3" face="Arial"><b>option &lt;</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>选项</b></font><font
+        color="#0000FF" size="3" face="Arial"><b>&gt; type &lt;</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>类型</b></font><font
+        color="#0000FF" size="3" face="Arial"><b>&gt; [min &lt;</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>最小值</b></font><font
+        color="#0000FF" size="3" face="Arial"><b>&gt;] [max &lt;</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>最大值</b></font><font
+        color="#0000FF" size="3" face="Arial"><b>&gt;] [var &lt;</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>可选项</b></font><font
+        color="#0000FF" size="3" face="Arial"><b>&gt; [var &lt;</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>可选项</b></font><font
+        color="#0000FF" size="3" face="Arial"><b>&gt; [...]]] [default
+        &lt;</b></font><font color="#0000FF" face="楷体_GB2312"><b>默认值</b></font><font
+        color="#0000FF" size="3" face="Arial"><b>&gt;]</b></font></dt>
+    <dt>　　引导状态的反馈。显示引擎所支持的选项，<font
+        color="#0000FF" face="Times New Roman">&lt;option&gt;</font>指选项的名称<font
+        face="Times New Roman">(</font>后面会介绍<font
+        face="Times New Roman">)</font>，选项的类型是<font
+        color="#0000FF" face="Times New Roman">label</font><font
+        face="Times New Roman">(</font>标签，非选项<font
+        face="Times New Roman">)</font>、<font color="#0000FF"
+        face="Times New Roman">button</font><font
+        face="Times New Roman">(</font>指令<font
+        face="Times New Roman">)</font>、<font color="#0000FF"
+        face="Times New Roman">check</font><font
+        face="Times New Roman">(</font>是或非<font
+        face="Times New Roman">)</font>、<font color="#0000FF"
+        face="Times New Roman">combo</font><font
+        face="Times New Roman">(</font>多选项<font
+        face="Times New Roman">)</font>、<font color="#0000FF"
+        face="Times New Roman">spin</font><font
+        face="Times New Roman">(</font>整数<font
+        face="Times New Roman">)</font>、<font color="#0000FF"
+        face="Times New Roman">string</font><font
+        face="Times New Roman">(</font>字符串<font
+        face="Times New Roman">)</font>中的一种。</dt>
+    <dt>　　通常的<font face="Times New Roman">UCCI</font>引擎支持以下选项：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font><font
+        color="#0000FF" face="Times New Roman">usemillisec(check)</font>，通知界面采用毫秒模式。建议引擎始终采用毫秒模式<font
+        face="Times New Roman">(</font>即<font color="#FF0000"
+        face="Times New Roman">go</font>指令的时间单位是“毫秒”<font
+        face="Times New Roman">)</font>，并总是在<font
+        color="#0000FF" face="Times New Roman">ucciok</font>前输出<font
+        color="#0000FF" face="Times New Roman">option usemillisec
+        ... </font>的反馈信息。除非引擎不发送 <font
+        color="#0000FF" face="Times New Roman">option usemillisec
+        ... </font>的反馈信息，否则界面将自动使用毫秒模式，并向引擎发送<font
+        color="#FF0000"> </font><font color="#FF0000"
+        face="Times New Roman">setoption usemillisec true </font>的指令。目前已知的<font
+        face="Times New Roman">UCCI</font>界面程序<font
+        face="Times New Roman">(</font>如象棋巫师、<font
+        face="Times New Roman">UCCI</font>引擎联赛模拟器等<font
+        face="Times New Roman">)</font>都采用这种做法；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font><font
+        color="#0000FF" face="Times New Roman">batch(check)</font>，批处理模式<font
+        face="Times New Roman">(</font>前面介绍过<font
+        face="Times New Roman">)</font>，默认是关闭的；</dt>
+    <dt>　　<font face="Times New Roman">(3) </font><font
+        color="#0000FF" face="Times New Roman">debug(check)</font>，调试模式，默认是关闭的，打开后引擎会输出更多的信息<font
+        face="Times New Roman">(</font><font color="#0000FF"
+        face="Times New Roman">info</font>反馈<font
+        face="Times New Roman">)</font>，以帮助调试；</dt>
+    <dt>　　<font face="Times New Roman">(4) </font><font
+        color="#0000FF" face="Times New Roman">ponder(check)</font>，是否使用后台思考的时间策略，默认是关闭的，设定该参数的目的仅仅是让引擎改变时间分配策略，而后台思考则仍然需要界面发出指令，参阅<font
+        color="#FF0000" face="Times New Roman">go ponder</font>和<font
+        color="#FF0000" face="Times New Roman">ponderhit</font>指令；</dt>
+    <dt>　　<font face="Times New Roman">(5) </font><font
+        color="#0000FF" face="Times New Roman">usebook(check)</font>，是否使用开局库的着法，默认是启用的，如果关闭的话，即便当前局面在开局库中有着法，引擎也会不顾开局库而思考的；</dt>
+    <dt>　　<font face="Times New Roman">(6) </font><font
+        color="#0000FF" face="Times New Roman">useegtb(check)</font>，是否使用残局库，默认是启用的，和<font
+        color="#0000FF" face="Times New Roman">usebook</font>类似；</dt>
+    <dt>　　<font face="Times New Roman">(7) </font><font
+        color="#0000FF" face="Times New Roman">bookfiles(string)</font>，设定开局库文件的名称，可指定多个开局库文件，用分号“<font
+        face="Times New Roman">;</font>”隔开，如不让引擎使用开局库，除了可以关闭<font
+        color="#0000FF" face="Times New Roman">usebook</font>选项外，还可以把<font
+        color="#0000FF" face="Times New Roman">bookfiles</font>设成空值；</dt>
+    <dt>　　<font face="Times New Roman">(8) </font><font
+        color="#0000FF" face="Times New Roman">egtbpaths(string)</font>，设定残局库路径的名称，和<font
+        color="#0000FF" face="Times New Roman">bookfiles</font>类似；</dt>
+    <dt>　　<font face="Times New Roman">(9) </font><font
+        color="#0000FF" face="Times New Roman">evalapi(string)</font>，设定局面评价<font
+        face="Times New Roman">API</font>函数库文件的名称，和<font
+        color="#0000FF" face="Times New Roman">bookfiles</font>类似，但只能是一个文件<font
+        face="Times New Roman">(</font>例如，<font
+        face="Times New Roman">Windows</font>下默认值是<font
+        face="Times New Roman">EVALUATE.DLL</font>，<font
+        face="Times New Roman">Linux</font>下默认值是<font
+        face="Times New Roman">libeval.so)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(10) </font><font
+        color="#0000FF" face="Times New Roman">hashsize(spin)</font>，以<font
+        face="Times New Roman">MB</font>为单位规定<font
+        face="Times New Roman">Hash</font>表的大小，<font
+        face="Times New Roman">0</font>表示让引擎自动分配<font
+        face="Times New Roman">Hash</font>表；</dt>
+    <dt>　　<font face="Times New Roman">(11) </font><font
+        color="#0000FF" face="Times New Roman">threads(spin)</font>，支持多处理器并行运算<font
+        face="Times New Roman">(SMP)</font>的引擎可指定线程数<font
+        face="Times New Roman">(</font>即最多可运行在多少处理器上<font
+        face="Times New Roman">)</font>，<font
+        face="Times New Roman">0</font>表示让引擎自动分配线程数；</dt>
+    <dt>　　<font face="Times New Roman">(12) </font><font
+        color="#0000FF" face="Times New Roman">idle(combo)</font>，设定处理器的空闲状态，通常有<font
+        color="#0000FF" face="Times New Roman">none</font><font
+        face="Times New Roman">(</font>满负荷<font
+        face="Times New Roman">)</font>、<font color="#0000FF"
+        face="Times New Roman">small</font><font
+        face="Times New Roman">(</font>高负荷<font
+        face="Times New Roman">)</font>、<font color="#0000FF"
+        face="Times New Roman">medium</font><font
+        face="Times New Roman">(</font>中负荷<font
+        face="Times New Roman">)</font>、<font color="#0000FF"
+        face="Times New Roman">large</font><font
+        face="Times New Roman">(</font>低符合<font
+        face="Times New Roman">)</font>四种选项，引擎默认总是以满负荷状态运行的，而设置比较大的空闲状态，可以在人机对弈时留出适当的处理器资源，让用户运行其他程序；</dt>
+    <dt>　　<font face="Times New Roman">(13) </font><font
+        color="#0000FF" face="Times New Roman">promotion(check)</font>，是否允许仕<font
+        face="Times New Roman">(</font>士<font
+        face="Times New Roman">)</font>相<font
+        face="Times New Roman">(</font>象<font
+        face="Times New Roman">)</font>升变成兵<font
+        face="Times New Roman">(</font>卒<font
+        face="Times New Roman">)</font>，这是一种中国象棋的改良玩法，默认是不允许的<font
+        face="Times New Roman">(</font>即默认采用常规走法<font
+        face="Times New Roman">)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(14) </font><font
+        color="#0000FF" face="Times New Roman">pruning(combo)</font>，设定裁剪程度，裁剪越多则引擎的搜索速度越快，但搜索结果不准确的可能性越大，通常有<font
+        color="#0000FF" face="Times New Roman">none</font><font
+        face="Times New Roman">(</font>无<font
+        face="Times New Roman">)</font>、<font color="#0000FF"
+        face="Times New Roman">small</font><font
+        face="Times New Roman">(</font>小<font
+        face="Times New Roman">)</font>、<font color="#0000FF"
+        face="Times New Roman">medium</font><font
+        face="Times New Roman">(</font>中<font
+        face="Times New Roman">)</font>、<font color="#0000FF"
+        face="Times New Roman">large</font><font
+        face="Times New Roman">(</font>大<font
+        face="Times New Roman">)</font>四种，一般都设为<font
+        color="#0000FF" face="Times New Roman">large</font>以充分展示引擎的搜索速度，但在处理一些刁难性的排局时，用<font
+        color="#0000FF" face="Times New Roman">large</font>或<font
+        color="#0000FF" face="Times New Roman">medium</font>不一定能解出，可尝试<font
+        color="#0000FF" face="Times New Roman">small</font>或<font
+        color="#0000FF" face="Times New Roman">none</font>；</dt>
+    <dt>　　<font face="Times New Roman">(15) </font><font
+        color="#0000FF" face="Times New Roman">knowledge(combo)</font>，设定知识大小，通常知识量越多则程序的静态局面评价越准确，但的运算速度会变慢，该选项和<font
+        color="#0000FF" face="Times New Roman">pruning</font>一样有四种设定，一般都使用<font
+        color="#0000FF" face="Times New Roman">large</font>，但在解杀局时不需要静态局面评价，可以把知识量设置得小些；</dt>
+    <dt>　　<font face="Times New Roman">(16) </font><font
+        color="#0000FF" face="Times New Roman">randomness(combo)</font>，设定随机性系数，和<font
+        color="#0000FF" face="Times New Roman">pruning</font>一样有四种设定，一般都设为<font
+        color="#0000FF" face="Times New Roman">none</font>，以保证引擎走出它认为最好的着法，但为了增强走棋的趣味性，可以把这个参数调高，允许引擎走出它认为不是最好的着法，以丰富走棋的样式；</dt>
+    <dt>　　<font face="Times New Roman">(17) </font><font
+        color="#0000FF" face="Times New Roman">style(combo)</font>，设定下棋的风格，通常有<font
+        color="#0000FF" face="Times New Roman">solid</font><font
+        face="Times New Roman">(</font>保守<font
+        face="Times New Roman">)</font>、<font color="#0000FF"
+        face="Times New Roman">normal</font><font
+        face="Times New Roman">(</font>均衡<font
+        face="Times New Roman">)</font>和<font color="#0000FF"
+        face="Times New Roman">risky</font><font
+        face="Times New Roman">(</font>冒进<font
+        face="Times New Roman">)</font>三种；</dt>
+    <dt>　　<font face="Times New Roman">(18) </font><font
+        color="#0000FF" face="Times New Roman">newgame(button)</font>，设置新局或新的局面，引擎收到该指令时，可以执行导入开局库、清空<font
+        face="Times New Roman">Hash</font>表等操作，<font
+        face="Times New Roman">UCCI</font>界面《象棋巫师》在每次新建棋局或重新编辑局面时都会发送<font
+        color="#FF0000"> </font><font color="#FF0000"
+        face="Times New Roman">setoption newgame </font>这条指令。</dt>
+    <dt>　　需要注意的是，各种引擎提供的选项内容是不一样的，也并不是所有的<font
+        face="Times New Roman">UCCI</font>界面支持这些选项的，例如目前的<font
+        face="Times New Roman">UCCI</font>界面《象棋巫师》没有对<font
+        color="#0000FF" face="Times New Roman">batch</font>、<font
+        color="#0000FF" face="Times New Roman">debug</font>等选项的设置<font
+        face="Times New Roman">(</font>它们只供调试时使用<font
+        face="Times New Roman">)</font>。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>4. </b></font><font color="#0000FF"
+        face="Arial"><b>ucciok</b></font></dt>
+    <dt>　　引导状态的反馈，此后引擎进入空闲状态。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>5. </b></font><font color="#FF0000"
+        face="Arial"><b>isready</b></font></dt>
+    <dt>　　空闲状态和思考状态的指令。检测引擎是否处于就绪状态，其反馈总是<font
+        color="#0000FF" face="Times New Roman">readyok</font>，该指令仅仅用来检测引擎是否能够正常接收指令。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>6. </b></font><font color="#0000FF"
+        face="Arial"><b>readyok</b></font></dt>
+    <dt>　　空闲状态和思考状态的反馈。表明引擎处于就绪状态<font
+        face="Times New Roman">(</font>可正常接收指令<font
+        face="Times New Roman">)</font>。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>7. </b></font><font color="#FF0000"
+        face="Arial"><b>setoption &lt;</b></font><font
+        color="#FF0000" face="楷体_GB2312"><b>选项</b></font><font
+        color="#FF0000" face="Arial"><b>&gt; [&lt;</b></font><font
+        color="#FF0000" face="楷体_GB2312"><b>值</b></font><font
+        color="#FF0000" face="Arial"><b>&gt;]</b></font></dt>
+    <dt>　　空闲状态的指令。设置引擎参数，这些参数都应该是<font
+        color="#0000FF" face="Times New Roman">option</font>反馈的参数，例如：
+    </dt>
+    <dd>　</dd>
+    <dd><font color="#FF0000" face="Times New Roman">setoption
+        usebook false</font>，不让引擎使用开局库；</dd>
+    <dd><font color="#FF0000" face="Times New Roman">setoption
+        selectivity large</font>，把选择性设成最大；</dd>
+    <dd><font color="#FF0000" face="Times New Roman">setoption
+        style risky</font>，指定冒进的走棋风格；</dd>
+    <dd><font color="#FF0000" face="Times New Roman">setoption
+        loadbook</font>，初始化开局库。</dd>
+    <dt>　</dt>
+    <dt>　　但是，设置<font color="#0000FF"
+        face="Times New Roman">option</font>反馈没有给出的参数，并不会出错。例如<font
+        face="Times New Roman">UCCI</font>界面《象棋巫师》就从不识别<font
+        color="#0000FF" face="Times New Roman">option</font>反馈，而直接根据用户的设置发送<font
+        color="#FF0000" face="Times New Roman">setoption</font>指令。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>8. </b></font><font color="#FF0000"
+        face="Arial"><b>position {fen &lt;FEN</b></font><font
+        color="#FF0000" face="楷体_GB2312"><b>串</b></font><font
+        color="#FF0000" face="Arial"><b>&gt; | startpos} [moves
+        &lt;</b></font><font color="#FF0000" face="楷体_GB2312"><b>后续着法列表</b></font><font
+        color="#FF0000" face="Arial"><b>&gt;]</b></font></dt>
+    <dt>　　空闲状态的指令。设置“内置棋盘”的局面，用<font
+        color="#FF0000" face="Times New Roman">fen</font>来指定<font
+        face="Times New Roman">FEN</font>格式串，<font
+        color="#FF0000" face="Times New Roman">moves</font>后面跟的是随后走过的着法，例如：</dt>
+    <dd><font color="#FF0000" face="Times New Roman">position fen
+        rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR
+        w - - 0 1</font><font color="#FF0000"> </font><font
+        color="#FF0000" face="Times New Roman">moves h2e2 h9g7</font></dd>
+    <dt>　　<font face="Times New Roman">FEN</font>格式串的写法参阅《<a
+        href="cchess_fen.htm" target="_blank">中国象棋电脑应用规范<font
+        face="Times New Roman">(</font>三<font
+        face="Times New Roman">)</font>：<font
+        face="Times New Roman">FEN</font>文件格式</a>》一文。</dt>
+    <dt>　　<font color="#FF0000" face="Times New Roman">moves</font>选项是为了防止引擎着出长打着法而设的，<font
+        face="Times New Roman">UCCI</font>界面传递局面时，通常<font
+        color="#FF0000" face="Times New Roman">fen</font>选项为最后一个吃过子的局面<font
+        face="Times New Roman">(</font>或开始局面<font
+        face="Times New Roman">)</font>，然后<font
+        color="#FF0000" face="Times New Roman">moves</font>选项列出该局面到当前局面的所有着法。</dt>
+    <dt>　　<font color="#FF0000" face="Times New Roman">startpos</font>表示开始局面，它等价于<font
+        color="#FF0000"> </font><font color="#FF0000"
+        face="Times New Roman">fen rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR
+        w - - 0 1 </font>。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><strong>9. </strong></font><font
+        color="#FF0000" face="Arial"><strong>banmoves &lt;</strong></font><font
+        color="#FF0000" face="楷体_GB2312"><strong>禁止着法列表</strong></font><font
+        color="#FF0000" face="Arial"><strong>&gt;</strong></font></dt>
+    <dt>　　空闲状态的指令。为当前局面设置禁手，以解决引擎无法处理的长打问题。当出现长打局面时，棋手可以操控界面向引擎发出禁手指令。例如：</dt>
+    <dd><font color="#FF0000" face="Times New Roman">position fen
+        1r2kab1r/2c1a4/n1c1b1n2/4p2N1/p1p6/1C4P2/P1P1P4/2N1B3C/4A4/1RBAK2R1
+        w - - 0 1 moves h6i4 i9h9 i4h6 h9i9</font></dd>
+    <dd><font color="#FF0000" face="Times New Roman">banmoves h6i4</font></dd>
+    <dt>　　本例取自《<a href="rule.htm" target="_blank">象棋竞赛规则</a>》<font
+        face="Times New Roman">(1999</font>年版<font
+        face="Times New Roman">)</font>棋例图三，由于大多数象棋引擎无法识别红方这种方式的长捉，所以在采用中国象棋协会的比赛规则时，遇到这种局面就必须给引擎发出禁手指令。下一次发送<font
+        color="#FF0000" face="Times New Roman">position</font>指令后，前面设置过的禁止着法就取消了，需要重新设置禁止着法。</dt>
+    <dt>　　目前<font face="Times New Roman">UCCI</font>界面《象棋巫师》不识别长打禁手，所以不会向引擎发送<font
+        color="#FF0000" face="Times New Roman">banmoves</font>指令。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>10. </b></font><font
+        color="#FF0000" face="Arial"><b>go [ponder | draw] &lt;</b></font><font
+        color="#FF0000" face="楷体_GB2312"><b>思考模式</b></font><font
+        color="#FF0000" face="Arial"><b>&gt;</b></font></dt>
+    <dt>　　空闲状态的指令，此后引擎进入思考状态。让引擎根据<font
+        color="#FF0000" face="Times New Roman">position</font>指令设定的棋盘来思考，各选项为思考方式，有三种模式可供选择：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font><font
+        color="#FF0000" face="Times New Roman">depth &lt;</font><font
+        color="#FF0000">深度</font><font color="#FF0000"
+        face="Times New Roman">&gt; | infinite</font>：限定搜索深度，<font
+        color="#FF0000" face="Times New Roman">infinite</font>表示无限制思考<font
+        face="Times New Roman">(</font>直到找到杀棋或用<font
+        color="#FF0000" face="Times New Roman">stop</font>指令中止<font
+        face="Times New Roman">)</font>。如果深度设定为<font
+        face="Times New Roman">0</font>，那么引擎可以只列出当前局面静态评价的分数，并且反馈<font
+        color="#0000FF" face="Times New Roman">nobestmove</font>。</dt>
+    <dt>　　<font face="Times New Roman">(2) </font><font
+        color="#FF0000" face="Times New Roman">nodes &lt;</font><font
+        color="#FF0000">结点数</font><font color="#FF0000"
+        face="Times New Roman">&gt;</font>：限定搜索结点数。</dt>
+    <dt>　　<font face="Times New Roman">(3) </font><font
+        color="#FF0000" face="Times New Roman">time &lt;</font><font
+        color="#FF0000">时间</font><font color="#FF0000"
+        face="Times New Roman">&gt; [movestogo &lt;</font><font
+        color="#FF0000">剩余步数</font><font color="#FF0000"
+        face="Times New Roman">&gt; | increment &lt;</font><font
+        color="#FF0000">每步加时</font><font color="#FF0000"
+        face="Times New Roman">&gt;] [opptime &lt;</font><font
+        color="#FF0000">对方时间</font><font color="#FF0000"
+        face="Times New Roman">&gt; [oppmovestogo &lt;</font><font
+        color="#FF0000">对方剩余步数</font><font
+        color="#FF0000" face="Times New Roman">&gt; |
+        oppincrement &lt;</font><font color="#FF0000">对方每步加时</font><font
+        color="#FF0000" face="Times New Roman">&gt;]]</font>：限定时间，时间单位是秒<font
+        face="Times New Roman">(</font>默认<font
+        face="Times New Roman">)</font>或毫秒<font
+        face="Times New Roman">(</font>启用毫秒制时<font
+        face="Times New Roman">)</font>，<font color="#FF0000"
+        face="Times New Roman">movestogo</font>适用于时段制，<font
+        color="#FF0000" face="Times New Roman">increment</font>适用于加时制。<font
+        color="#FF0000" face="Times New Roman">opptime</font>、<font
+        color="#FF0000" face="Times New Roman">oppmovestogo</font>和<font
+        color="#FF0000" face="Times New Roman">oppincrement</font>可以让界面把对方的用时情况告诉引擎。</dt>
+    <dt>　　如果指定<font color="#FF0000"
+        face="Times New Roman">ponder</font>选项，则引擎思考时时钟不走，直到接受到<font
+        color="#FF0000" face="Times New Roman">ponderhit</font>指令后才计时，该选项用于后台思考，它只对限定时间的思考模式有效。</dt>
+    <dt>　　指定<font color="#FF0000" face="Times New Roman">draw</font>选项表示向引擎提和，引擎以<font
+        color="#0000FF" face="Times New Roman">bestmove</font>提供的选项作为反馈，参阅<font
+        color="#0000FF" face="Times New Roman">bestmove</font>指令。</dt>
+    <dt>　　注意：<font color="#FF0000"
+        face="Times New Roman">ponder</font>和<font
+        color="#FF0000" face="Times New Roman">draw</font>选项不能同时使用，如果界面向正在后台思考中的引擎求和，则使用<font
+        color="#FF0000" face="Times New Roman">ponderhit draw</font>指令。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>11. </b></font><font
+        color="#0000FF" face="Arial"><b>info &lt;</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>思考信息</b></font><font
+        color="#0000FF" face="Arial"><b>&gt;</b></font></dt>
+    <dt>　　思考状态的反馈。显示引擎思考信息，通常有以下几种信息：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font><font
+        color="#0000FF" face="Times New Roman">time &lt;</font><font
+        color="#0000FF">已花费的时间</font><font
+        color="#0000FF" face="Times New Roman">&gt;</font> <font
+        color="#0000FF" face="Times New Roman">nodes &lt;</font><font
+        color="#0000FF">已搜索的结点数</font><font
+        color="#0000FF" face="Times New Roman">&gt;</font>：思考信息中给出的时间通常以毫秒为单位，结点数和时间相除就是引擎的速度<font
+        face="Times New Roman">(NPS</font>值<font
+        face="Times New Roman">)</font>，单位是<font
+        face="Times New Roman">K</font>。</dt>
+    <dt>　　<font face="Times New Roman">(2) </font><font
+        color="#0000FF" face="Times New Roman">depth &lt;</font><font
+        color="#0000FF">当前搜索深度</font><font
+        color="#0000FF" face="Times New Roman">&gt; [score &lt;</font><font
+        color="#0000FF">分值</font><font color="#0000FF"
+        face="Times New Roman">&gt; pv &lt;</font><font
+        color="#0000FF">主要变例</font><font color="#0000FF"
+        face="Times New Roman">&gt;]</font>：输出引擎思考到的深度及其思考路线和好坏。例如在起始局面下，《象棋巫师》收到引擎的反馈：<font
+        color="#0000FF" face="Times New Roman">info depth 6 score
+        4 pv b0c2 b9c7 c3c4 h9i7 c2d4 h7e7</font>，那么界面上应该输出：<font
+        face="Times New Roman">6</font> <font
+        face="Times New Roman">(+4) </font>马八进七 马２进３
+        兵七进一 马８进９ 马七进六 炮８平５。分值通常以一个轻子<font
+        face="Times New Roman">(</font>马或炮<font
+        face="Times New Roman">)</font>为<font
+        face="Times New Roman">100</font>分记，以上信息说明此时当前要走的一方占有相当于<font
+        face="Times New Roman">0.04</font>个轻子的优势。</dt>
+    <dt>　　<font face="Times New Roman">(3) </font><font
+        color="#0000FF" face="Times New Roman">currmove &lt;</font><font
+        color="#0000FF">当前搜索着法</font><font
+        color="#0000FF" face="Times New Roman">&gt;</font>：输出引擎正在思考的着法。</dt>
+    <dt>　　<font face="Times New Roman">(4) </font><font
+        color="#0000FF" face="Times New Roman">message &lt;</font><font
+        color="#0000FF">提示信息</font><font color="#0000FF"
+        face="Times New Roman">&gt;</font>：输出引擎要直接告诉用户的信息，建议界面程序直接将提示信息显示在界面上。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>12. </b></font><font
+        color="#FF0000" face="Arial"><b>ponderhit [draw]</b></font></dt>
+    <dt>　　思考状态的指令。告诉引擎后台思考命中，现在转入正常思考模式<font
+        face="Times New Roman">(</font>引擎继续处于思考状态，此时<font
+        color="#FF0000" face="Times New Roman">go</font>指令设定的时限开始起作用<font
+        face="Times New Roman">)</font>。</dt>
+    <dt>　　指定<font color="#FF0000" face="Times New Roman">draw</font>选项表示向引擎提和，引擎以<font
+        color="#0000FF" face="Times New Roman">bestmove</font>提供的选项作为反馈，参阅<font
+        color="#0000FF" face="Times New Roman">bestmove</font>指令。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>13. </b></font><font
+        color="#FF0000" face="Arial"><b>stop</b></font></dt>
+    <dt>　　思考状态的指令。中止引擎的思考。另外，后台思考没有命中时，就用该指令来中止思考，然后重新输入局面。</dt>
+    <dt>　　注意：发出该指令并不意味着引擎将立即回到空闲状态，而是要等到引擎反馈<font
+        color="#0000FF" face="Times New Roman">bestmove</font>或<font
+        color="#0000FF" face="Times New Roman">nobestmove</font>后才表示回到空闲状态，引擎应尽可能快地作出这样的反馈。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>14. </b></font><font
+        color="#0000FF" face="Arial"><b>bestmove &lt;</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>最佳着法</b></font><font
+        color="#0000FF" face="Arial"><b>&gt; [ponder &lt;</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>后台思考的猜测着法</b></font><font
+        color="#0000FF" face="Arial"><b>&gt;] [draw | resign]</b></font></dt>
+    <dt>　　思考状态的反馈，此后引擎返回空闲状态。显示思考结果，即引擎认为在当前局面下的最佳着法，以及猜测在这个着法后对手会有怎样的应对<font
+        face="Times New Roman">(</font>即后台思考的猜测着法<font
+        face="Times New Roman">)</font>。通常，最佳着法是思考路线<font
+        face="Times New Roman">(</font>主要变例<font
+        face="Times New Roman">)</font>中的第一个着法，而后台思考的猜测着法则是第二个着法。</dt>
+    <dt>　　在对手尚未落子时，可以根据该着法来设定局面，并作后台思考。当对手走出的着法和后台思考的猜测着法吻合时，称为“后台思考命中”。</dt>
+    <dt>　　<font color="#0000FF" face="Times New Roman">draw</font>选项表示引擎提和或者接受界面向引擎发送的提和请求，参阅<font
+        color="#FF0000" face="Times New Roman">go draw</font>和<font
+        color="#FF0000" face="Times New Roman">ponderhit draw</font>指令。<font
+        color="#0000FF" face="Times New Roman">resign</font>选项表示引擎认输。<font
+        face="Times New Roman">UCCI</font>界面在人机对弈方式下，根据不同情况，可以对引擎的<font
+        color="#0000FF" face="Times New Roman">bestmove</font>反馈中的<font
+        color="#0000FF" face="Times New Roman">draw</font>和<font
+        color="#0000FF" face="Times New Roman">resign</font>选项作出相应的处理：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>如果用户提和，界面向引擎发出<font
+        color="#FF0000" face="Times New Roman">go draw</font>或<font
+        color="#FF0000" face="Times New Roman">ponderhit draw</font>指令，而引擎反馈带<font
+        color="#0000FF" face="Times New Roman">draw</font>的<font
+        color="#0000FF" face="Times New Roman">bestmove</font>，那么界面可终止对局并判议和；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>如果用户没有提和，而引擎反馈带<font
+        color="#0000FF" face="Times New Roman">draw</font>的<font
+        color="#0000FF" face="Times New Roman">bestmove</font>，那么界面可向用户提和，用户接受提和则可终止对局并判议和；</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>如果引擎反馈带<font
+        color="#0000FF" face="Times New Roman">resign</font>的<font
+        color="#0000FF" face="Times New Roman">bestmove</font>，那么界面可终止对局并判引擎认输。</dt>
+    <dt>　　引擎应该根据当前局面的情况<font
+        face="Times New Roman">(</font>由<font color="#FF0000"
+        face="Times New Roman">position</font>指令给出<font
+        face="Times New Roman">)</font>，以及界面是否发送了带<font
+        color="#FF0000" face="Times New Roman">draw</font>的<font
+        color="#FF0000" face="Times New Roman">go</font>或<font
+        color="#FF0000" face="Times New Roman">ponderhit</font>指令，来考虑是否反馈带<font
+        color="#0000FF" face="Times New Roman">draw</font>或<font
+        color="#0000FF" face="Times New Roman">resign</font>的<font
+        color="#0000FF" face="Times New Roman">bestmove</font>。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>15. </b></font><font
+        color="#0000FF" face="Arial"><b>nobestmove</b></font></dt>
+    <dt>　　思考状态的反馈，此后引擎返回空闲状态。显示思考结果，但引擎一步着法也没计算，表示当前局面是死局面，或者接收到诸如<font
+        color="#FF0000"> </font><font color="#FF0000"
+        face="Times New Roman">go depth 0 </font>等只让引擎给出静态局面评价的指令。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>16. </b></font><font
+        color="#FF0000" face="Arial"><b>probe {fen &lt;FEN</b></font><font
+        color="#FF0000" face="楷体_GB2312"><b>串</b></font><font
+        color="#FF0000" face="Arial"><b>&gt; | startpos} [moves
+        &lt;</b></font><font color="#FF0000" face="楷体_GB2312"><b>后续着法列表</b></font><font
+        color="#FF0000" face="Arial"><b>&gt;]</b></font></dt>
+    <dt>　　空闲状态和思考状态的指令。获取<font
+        face="Times New Roman">Hash</font>表中指定局面的信息，引擎必须立刻在<font
+        face="Times New Roman">Hash</font>表中查找该局面的状态，由<font
+        color="#0000FF" face="Times New Roman">pophash</font>指令反馈。</dt>
+    <dt>　　该指令仅用于引擎的调试，设计者可以向引擎发送一系列<font
+        color="#FF0000" face="Times New Roman">probe</font>指令，捕获到搜索树的大致信息。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>17.</b></font><font color="#0000FF"
+        face="Arial"><b> pophash [bestmove &lt;</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>最佳着法</b></font><font
+        color="#0000FF" face="Arial"><b>&gt;] [lowerbound &lt;Beta</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>值</b></font><font
+        color="#0000FF" face="Arial"><b>&gt; depth &lt;</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>深度</b></font><font
+        color="#0000FF" face="Arial"><b>&gt;] [upperbound &lt;Alpha</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>值</b></font><font
+        color="#0000FF" face="Arial"><b>&gt; depth &lt;</b></font><font
+        color="#0000FF" face="楷体_GB2312"><b>深度</b></font><font
+        color="#0000FF" face="Arial"><b>&gt;]</b></font></dt>
+    <dt>　　空闲状态和思考状态的反馈。输出由<font
+        color="#FF0000" face="Times New Roman">probe</font>所指定的局面在<font
+        face="Times New Roman">Hash</font>表中信息。</dt>
+    <dt>　　如果该局面没有记录在<font
+        face="Times New Roman">Hash</font>表中，那么只反馈<font
+        color="#0000FF" face="Times New Roman">pophash</font>即可。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><b>18. </b></font><font
+        color="#FF0000" face="Arial"><b>quit</b></font></dt>
+    <dt>　　空闲状态的指令。让引擎退出运转。</dt>
+    <dt>　</dt>
+    <dt><font face="Arial"><strong>19. </strong></font><font
+        color="#0000FF" face="Arial"><strong>bye</strong></font></dt>
+    <dt>　　接收到<font color="#FF0000"
+        face="Times New Roman">quit</font>指令后的反馈。引擎完成了退出运转前的准备工作，通知界面，引擎将在瞬间正常退出运转。界面收到该指令后，即可关闭输入输出通道。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="楷体_GB2312"><strong>六、用例</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　下面是一个后台思考的例子，描述了<font
+        face="Times New Roman">UCCI</font>引擎中最难处理的部分。<font
+        face="Times New Roman">(</font>从界面到引擎的<font
+        face="Times New Roman">)</font>指令用红色表示，<font
+        face="Times New Roman">(</font>从引擎到界面的<font
+        face="Times New Roman">)</font>反馈用蓝色表示。</dt>
+    <dd>　</dd>
+    <dd><font color="#FF0000" face="Times New Roman">ucci</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">id name
+        ElephantEye Demo</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">option
+        usemillisec type check default false</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">option
+        usebook type check default true</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">ucciok</font></dd>
+    <dd><font color="#FF0000" face="Times New Roman">setoption
+        usemillisec true</font></dd>
+    <dd><font color="#FF0000" face="Times New Roman">setoption
+        usebook false</font></dd>
+    <dd><font color="#FF0000" face="Times New Roman">position fen
+        rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR
+        w - - 0 1</font></dd>
+    <dd><font color="#FF0000" face="Times New Roman">go time
+        300000 increment 0</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">info depth 6
+        score 4 pv b0c2 b9c7 c3c4 h9i7 c2d4 h7e7</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">info nodes
+        5000000 time 5000</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">bestmove b0c2
+        ponder b9c7</font></dd>
+    <dt>　</dt>
+    <dt>　　在这个例子中，引擎执红，用户执黑，采用<font
+        face="Times New Roman">5</font>分钟包干的时限。引擎启动后，界面即让引擎分析初始局面<font
+        face="Times New Roman">(</font>不用开局库<font
+        face="Times New Roman">)</font>，引擎给出最佳着法“马八进七”，然后是用户走子，引擎按照猜测着法“马２进３”作后台思考。此时，引擎消耗了<font
+        face="Times New Roman">5</font>秒钟，还剩余<font
+        face="Times New Roman">295</font>秒的时间。</dt>
+    <dd>　</dd>
+    <dd><font color="#FF0000" face="Times New Roman">position fen
+        rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR
+        w - - 0 1 moves b0c2 b9c7</font></dd>
+    <dd><font color="#FF0000" face="Times New Roman">go ponder
+        time 295000 increment 0</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">info depth 6
+        score 4 pv c3c4 h9i7 c2d4 h7e7 h0g2 i9h9</font></dd>
+    <dt>　</dt>
+    <dt>　　此时用户走子了，下面分两种情况讨论。</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>如果用户走了引擎的猜测着法“马２进３”，那么后台思考命中：</dt>
+    <dd>　</dd>
+    <dd><font color="#FF0000" face="Times New Roman">ponderhit</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">info nodes
+        10000000 time 10000</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">info depth 7
+        score 4 pv c3c4 h9i7 c2d4 h7e7 h0g2 i9h9 i0h0</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">info nodes
+        15000000 time 15000</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">bestmove c3c4
+        ponder h9i7</font></dd>
+    <dt>　</dt>
+    <dt>　　现在引擎走“兵七进一”，并且猜测对方会走“马８进９”。尽管这着棋引擎思考了<font
+        face="Times New Roman">15</font>秒钟，但是前<font
+        face="Times New Roman">10</font>秒钟用的是对手的时间，自己的时间是从<font
+        color="#FF0000" face="Times New Roman">ponderhit</font>到<font
+        color="#0000FF" face="Times New Roman">bestmove</font>的部分，所以自己的时间只消耗了<font
+        face="Times New Roman">5</font>秒钟，因此还剩余<font
+        face="Times New Roman">290</font>秒的时间。然后引擎继续后台思考。</dt>
+    <dd>　</dd>
+    <dd><font color="#FF0000" face="Times New Roman">position fen
+        rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR
+        w - - 0 1 moves b0c2 b9c7 c3c4 h9i7</font></dd>
+    <dd><font color="#FF0000" face="Times New Roman">go ponder
+        time 290000 increment 0</font></dd>
+    <dd>……</dd>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>如果用户走了其他的着法<font
+        face="Times New Roman">(</font>比如“卒３进１”<font
+        face="Times New Roman">)</font>，那么后台思考没有命中，必须根据这个着法重新思考。</dt>
+    <dd><font color="#FF0000" face="Times New Roman">stop</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">info nodes
+        10000000 time 10000</font></dd>
+    <dd><font color="#0000FF" face="Times New Roman">bestmove c3c4
+        ponder h9i7</font></dd>
+    <dd><font color="#FF0000" face="Times New Roman">position fen
+        rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR
+        w - - 0 1 moves b0c2 c6c5</font></dd>
+    <dd><font color="#FF0000" face="Times New Roman">go time
+        295000 increment 0</font></dd>
+    <dd>……</dd>
+    <dt>　</dt>
+    <dt>　　如希望获得更详细的关于<font
+        face="Times New Roman">UCCI</font>操作上的细节，可参考<font
+        face="Times New Roman">UCCI</font>引擎<font
+        face="Times New Roman">ElephantEye</font>的源程序及其说明材料，这里不再作过多的介绍。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="楷体_GB2312"><strong>七、电脑象棋联赛</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　电脑象棋联赛使用<font
+        face="Times New Roman">UCCI</font>引擎，但是参赛引擎并不一定要支持<font
+        face="Times New Roman">UCCI</font>的全部内容，只需要能跟“<font
+        face="Times New Roman">UCCI</font>引擎联赛模拟器”正常通讯就可正常比赛了，模拟器相当于一个支持<font
+        face="Times New Roman">UCCI</font>的界面。参赛引擎必须能够识别并正确处理的指令有：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font><font
+        color="#FF0000" face="Times New Roman">ucci</font>；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font><font
+        color="#FF0000" face="Times New Roman">position fen ... [moves
+        ...]</font>；</dt>
+    <dt>　　<font face="Times New Roman">(3) </font><font
+        color="#FF0000" face="Times New Roman">banmoves ...</font>；</dt>
+    <dt>　　<font face="Times New Roman">(4) </font><font
+        color="#FF0000" face="Times New Roman">go [draw] time ...
+        increment ... [opptime ... oppincrement ...]</font>；</dt>
+    <dt>　　<font face="Times New Roman">(5) </font><font
+        color="#FF0000" face="Times New Roman">quit</font>。</dt>
+    <dt>　　参赛引擎必须能够反馈的信息有：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font><font
+        color="#0000FF" face="Times New Roman">ucciok</font>；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font><font
+        color="#0000FF" face="Times New Roman">bestmove ... [draw
+        | resign]</font>。</dt>
+    <dt>　　为了更好地让引擎适应模拟器，引擎最好能够实现以下功能：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>支持毫秒制。即启动时有<font
+        color="#0000FF" face="Times New Roman">option usemillisec</font>的反馈，能够识别并处理<font
+        color="#FF0000" face="Times New Roman">setoption
+        usemillisec true</font>的指令。启用毫秒制以后，在时间非常紧缺的情况下，模拟器就会准确地把时间告诉引擎，否则只会粗略地给出秒数。</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>支持认输和提和，即当引擎觉得没有机会获胜时，可以用<font
+        color="#FF0000" face="Times New Roman">bestmove ... draw</font>提和或接受提和，当引擎觉得没有能力抵抗时，可以用<font
+        color="#FF0000" face="Times New Roman">bestmove ...
+        resign</font>认输，节约比赛时间。</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>支持<font
+        color="#FF0000" face="Times New Roman">stop</font>指令。当引擎超时后，模拟器会发送<font
+        color="#FF0000" face="Times New Roman">stop</font>指令让引擎立即给出着法<font
+        face="Times New Roman">(</font>立即反馈<font
+        color="#0000FF" face="Times New Roman">bestmove</font><font
+        face="Times New Roman">)</font>，超过一定时间<font
+        face="Times New Roman">(</font>如超过<font
+        face="Times New Roman">0.2</font>秒<font
+        face="Times New Roman">)</font>才判超时负。</dt>
+    <dt>　　另外，识别<font color="#FF0000"
+        face="Times New Roman">setoption</font>指令不是必须的，但在联赛中也会有用。例如，如果引擎需要用<font
+        color="#FF0000" face="Times New Roman">setoption
+        bookfiles ...</font>来导入开局库，而模拟器不会自动向引擎发送这条指令，那么引擎必须建立配置文件，其中有<font
+        color="#FF0000" face="Times New Roman">setoption
+        bookfiles ...</font>这行指令，模拟器在启动引擎后，会把配置文件中的每行都作为指令发送给引擎的。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="楷体_GB2312"><strong>八、和</strong></font><font
+        size="4" face="Arial"><strong>UCI</strong></font><font
+        size="4" face="楷体_GB2312"><strong>的区别</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">UCCI</font>是从国际象棋通用引擎协议<font
+        face="Times New Roman">UCI</font>移植过来的，沿用了大部分<font
+        face="Times New Roman">UCI</font>的指令和反馈，但是为了适应中国象棋软件的需要，作了以下几点改动：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>增加了<font
+        color="#FF0000" face="Times New Roman">banmoves</font>指令，因为中国象棋有长打作负的规则。</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>把<font
+        face="Times New Roman">UCI</font>的反馈<font
+        color="#0000FF" face="Times New Roman">option name &lt;</font><font
+        color="#0000FF">选项</font><font color="#0000FF"
+        face="Times New Roman">&gt; type &lt;</font><font
+        color="#0000FF">类型</font><font color="#0000FF"
+        face="Times New Roman">&gt; ...</font>简化为<font
+        color="#0000FF" face="Times New Roman">option &lt;</font><font
+        color="#0000FF">选项</font><font color="#0000FF"
+        face="Times New Roman">&gt; type &lt;</font><font
+        color="#0000FF">类型</font><font color="#0000FF"
+        face="Times New Roman">&gt; ...</font>。例如，<font
+        face="Times New Roman">UCI</font>中有<font
+        color="#0000FF" face="Times New Roman">option name Hash
+        Size type spin</font>这条反馈，而在<font
+        face="Times New Roman">UCCI</font>中则是<font
+        color="#0000FF" face="Times New Roman">option hashsize
+        type spin</font>。这里去掉了<font color="#0000FF"
+        face="Times New Roman">name</font>关键字，因为它总是跟在<font
+        color="#0000FF" face="Times New Roman">option</font>后面，显得多此一举。另外，<font
+        face="Times New Roman">UCI</font>允许选项由多个有大小写的单词组成<font
+        face="Times New Roman">(</font>如<font color="#0000FF"
+        face="Times New Roman">Hash Size</font><font
+        face="Times New Roman">)</font>，这是因为<font
+        face="Times New Roman">UCI</font>界面会直接把这个选项名称显示在对话框上。而<font
+        face="Times New Roman">UCCI</font>中的选项只用一个全部由小写字母组成的单词，因为中国象棋的<font
+        face="Times New Roman">UCCI</font>界面使用中文，因此界面上不能输出<font
+        color="#0000FF" face="Times New Roman">Hash Size</font>，而用“置换表”或其他可以看得懂的中文术语。这样，界面还不如识别一个更简单的<font
+        color="#0000FF" face="Times New Roman">hashsize</font><font
+        face="Times New Roman">(</font>一个全部由小写字母组成的单词<font
+        face="Times New Roman">)</font>，再翻译成“置换表”。</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>把<font
+        face="Times New Roman">UCI</font>的指令<font
+        color="#FF0000" face="Times New Roman">setoption name
+        &lt;</font><font color="#FF0000">选项</font><font
+        color="#FF0000" face="Times New Roman">&gt; [value &lt;</font><font
+        color="#FF0000">值</font><font color="#FF0000"
+        face="Times New Roman">&gt;]</font>简化为<font
+        color="#FF0000" face="Times New Roman">setoption &lt;</font><font
+        color="#FF0000">选项</font><font color="#FF0000"
+        face="Times New Roman">&gt; [&lt;</font><font
+        color="#FF0000">值</font><font color="#FF0000"
+        face="Times New Roman">&gt;]</font>。由于<font
+        face="Times New Roman">UCCI</font>的选项是一个单词，所以第二个空格后的内容肯定是选项的值，因此<font
+        color="#FF0000" face="Times New Roman">name</font>和<font
+        color="#FF0000" face="Times New Roman">value</font>就显得多此一举了。</dt>
+    <dt>　　<font face="Times New Roman">(4) UCCI</font>明确了引擎所处的三种状态，以及这三种状态下适用的指令和反馈，为界面和引擎的程序设计提供了清晰的思路。</dt>
+    <dt>　　<font face="Times New Roman">(5) UCCI</font>以<font
+        color="#FF0000" face="Times New Roman">go time &lt;</font><font
+        color="#FF0000">时间</font><font color="#FF0000"
+        face="Times New Roman">&gt; opptime &lt;</font><font
+        color="#FF0000">时间</font><font color="#FF0000"
+        face="Times New Roman">&gt;</font>的形式把双方的时间信息传达给引擎，而不是<font
+        face="Times New Roman">UCI</font>的<font color="#FF0000"
+        face="Times New Roman">go wtime &lt;</font><font
+        color="#FF0000">时间</font><font color="#FF0000"
+        face="Times New Roman">&gt; btime &lt;</font><font
+        color="#FF0000">时间</font><font color="#FF0000"
+        face="Times New Roman">&gt;</font>，这样可以简化引擎解析时间的操作，如果引擎在指定用时策略时不考虑对方的用时，那么可以不理会<font
+        color="#FF0000" face="Times New Roman">opptime &lt;</font><font
+        color="#FF0000">时间</font><font color="#FF0000"
+        face="Times New Roman">&gt;</font>。</dt>
+    <dt>　　<font face="Times New Roman">(6) UCCI</font>明确了<font
+        face="Times New Roman">4</font>种思考模式，使得指令的解析简单化了。</dt>
+    <dt>　　<font face="Times New Roman">(7) UCCI</font>规定<font
+        color="#FF0000" face="Times New Roman">position fen ... [moves
+        ...]</font>指令中的<font face="Times New Roman">FEN</font>串是当前局面前第一个不吃子的局面，后面再跟该局面的后续着法。而<font
+        face="Times New Roman">UCI</font>则是用<font
+        color="#FF0000" face="Times New Roman">position startpos
+        moves ...</font>指令，把棋局从头到尾的着法全都列出来，会增加通讯通道的压力。</dt>
+</dl>
+<div align="center"><center>
+
+<table border="0">
+    <tr>
+        <td><p align="center"><a
+        href="http://www.xqbase.com/" target="_blank"><img
+        src="xqbase.gif" border="0" width="88"
+        height="31"></a></p>
+        </td>
+    </tr>
+    <tr>
+        <td><a href="http://www.xqbase.com/"
+        target="_blank"><font size="2" face="Arial"><strong>www.xqbase.com</strong></font></a></td>
+    </tr>
+</table>
+</center></div>
+</body>
+</html>

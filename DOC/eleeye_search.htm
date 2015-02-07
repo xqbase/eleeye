@@ -1,0 +1,324 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=gb_2312-80">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>中国象棋程序设计探索(三)：搜索和置换表</title>
+</head>
+
+<body background="background.gif">
+
+<dl>
+    <div align="center"><center>
+    <dt><font size="6" face="隶书">中国象棋程序设计探索</font></dt>
+    </center></div><div align="center"><center>
+    <dt>　</dt>
+    </center></div><div align="center"><center>
+    <dt>象棋百科全书网 <font face="Times New Roman">(</font><a
+        href="mailto:webmaster@xqbase.com"><font
+        face="Times New Roman">webmaster@xqbase.com</font></a><font
+        face="Times New Roman">)</font></dt>
+    </center></div><div align="center"><center>
+    <dt><font face="Times New Roman">2005</font>年<font
+        face="Times New Roman">6</font>月初稿，<font
+        face="Times New Roman">2007</font>年<font
+        face="Times New Roman">5</font>月修订</dt>
+    </center></div>
+    <dt>　</dt>
+    <dt><font size="5" face="Arial"><strong>(</strong></font><font
+        size="5" face="楷体_GB2312"><strong>三</strong></font><font
+        size="5" face="Arial"><strong>) </strong></font><font
+        size="5" face="楷体_GB2312"><strong>搜索与置换表</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　在阅读本章前，建议读者先阅读<a
+        href="http://www.xqbase.com/" target="_blank">象棋百科全书网</a>中《<a
+        href="outline.htm" target="_blank">对弈程序基本技术</a>》专题的以下几篇译文：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font><a
+        href="search_intro1.htm" target="_blank">基本搜索方法——简介<font
+        face="Times New Roman">(</font>一<font
+        face="Times New Roman">)</font></a><font
+        face="Times New Roman">(David Eppstein)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font><a
+        href="search_intro2.htm" target="_blank">基本搜索方法——简介<font
+        face="Times New Roman">(</font>二<font
+        face="Times New Roman">)</font></a><font
+        face="Times New Roman">(David Eppstein)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(3) </font><a
+        href="search_intro3.htm" target="_blank">基本搜索方法——简介<font
+        face="Times New Roman">(</font>三<font
+        face="Times New Roman">)</font></a><font
+        face="Times New Roman">(David Eppstein)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(4) </font><a
+        href="search_minimax.htm" target="_blank">基本搜索方法——最小<font
+        face="Times New Roman">-</font>最大搜索</a><font
+        face="Times New Roman">(Bruce Moreland)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(5) </font><a
+        href="search_alphabeta.htm" target="_blank">基本搜索方法——<font
+        face="Times New Roman">Alpha-Beta</font>搜索</a><font
+        face="Times New Roman">(Bruce Moreland)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(6) </font><a
+        href="search_iterative.htm" target="_blank">基本搜索方法——迭代加深</a><font
+        face="Times New Roman">(Bruce Moreland)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(7) </font><a
+        href="search_hashing.htm" target="_blank">基本搜索方法——置换表</a><font
+        face="Times New Roman">(Bruce Moreland)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(8) </font><a
+        href="advanced_intro2.htm" target="_blank">高级搜索方法——简介<font
+        face="Times New Roman">(</font>二<font
+        face="Times New Roman">)</font></a><font
+        face="Times New Roman">(David Eppstein)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(9) </font><a
+        href="advanced_instability.htm" target="_blank">高级搜索方法——搜索的不稳定性</a><font
+        face="Times New Roman">(Bruce Moreland)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(10) </font><a
+        href="other_winning.htm" target="_blank">其他策略——胜利局面</a><font
+        face="Times New Roman">(David Eppstein)</font>。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>3.1 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>搜索技术概述</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　搜索算法是象棋程序的核心算法，在众多搜索算法中，如何选择适合自己的算法，并有效地把它们组合起来，是决定搜索效率的关键所在。要做好这点，首先必须明确搜索的概念，把各种搜索算法作一下分类。</dt>
+    <dt>　　象棋程序的搜索算法都是基于“最小<font
+        face="Times New Roman">-</font>最大”策略的，因此衍生出以<font
+        face="Times New Roman">Alpha-Beta</font>为基础的完全搜索算法以及带裁剪的搜索算法。尽管<font
+        face="Times New Roman">Alpha-Beta</font>算法也有裁剪的过程，但是这种裁剪被证明是绝对可靠的，没有无负面作用，即通常所说的“截断”<font
+        face="Times New Roman">(Cut-off)</font>，它属于申朗所说的<font
+        face="Times New Roman">A</font>策略。</dt>
+    <dt>　　我们现在所说的“裁剪”<font
+        face="Times New Roman">(Pruning)</font>，特指“向前裁剪”<font
+        face="Times New Roman">(Forward Pruning)</font>，即需要承担风险地对某些线路作的裁剪，也就是申朗所说的<font
+        face="Times New Roman">B</font>策略。尽管它是完全搜索算法的对立面，但为了克服完全搜索中的“水平线效应”<font
+        face="Times New Roman">(Horizon Effect)</font>，它是程序中必不可少的部分。把裁剪反过来，对某些重要线路进行“延伸”<font
+        face="Times New Roman">(Extension)</font>，这种思想和裁剪有异曲同工之妙。</dt>
+    <dt>　　如今，“带置换表的启发式<font
+        face="Times New Roman">Alpha-Beta</font>搜索”成了象棋程序的主流，这种思想强调对着法排序的重要性，排序着法是由“启发”<font
+        face="Times New Roman">(Heuristic)</font>算法来完成的，它同“置换表”<font
+        face="Times New Roman">(Transposition Table)</font>一起，使搜索效率有大幅度的提高。</dt>
+    <dt>　　因此，搜索算法大致可以分为以下四类：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>完全搜索算法，即<font
+        face="Times New Roman">Alpha-Beta</font>搜索及其变种，诸如期望窗口、<font
+        face="Times New Roman">PVS</font>、<font
+        face="Times New Roman">MTD(<em>f</em>)</font>等；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>启发算法，对着法顺序进行优化，尽可能地提高<font
+        face="Times New Roman">Alpha-Beta</font>搜索的效率，中国象棋中的启发算法有置换表启发、吃子启发、杀手着法启发和历史表启发等；</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>裁剪算法，运用棋类知识略去对某些着法的搜索，以提高搜索深度，中国象棋中最常用的裁剪算法是空着裁剪，当然还有其他方法。</dt>
+    <dt>　　<font face="Times New Roman">(4) </font>置换表。</dt>
+    <dt>　　以上算法中，置换表被独立归为一类，因为它不但功能特殊，而且值得研究问题最多。置换表的初衷是利用置换现象来减少搜索<font
+        face="Times New Roman">(</font>即置换裁剪，属于裁剪算法的范畴<font
+        face="Times New Roman">)</font>，然而在象棋的中局阶段，置换现象并不那么普遍，因此它的主要功效在于启发<font
+        face="Times New Roman">(</font>即置换表启发，属于启发算法的范畴<font
+        face="Times New Roman">)</font>。另外，置换现象会导致搜索的不稳定性，因而会产生很多负面作用<font
+        face="Times New Roman">(</font>毕竟是裁剪的一种形式<font
+        face="Times New Roman">)</font>，而要彻底研究清楚并非那么容易。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>3.2</strong></font><font
+        size="4" face="楷体_GB2312"><strong> 超出边界的</strong></font><font
+        size="4" face="Arial"><strong>Alpha-Beta</strong></font><font
+        size="4" face="楷体_GB2312"><strong>搜索</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　置换表的大部分问题出在边界上，直到目前笔者还无法彻底明白该如何设置边界，因此想把这个问题留给读者。首先我们从不带置换表的超出边界<font
+        face="Times New Roman">(Fail-Soft)</font>的<font
+        face="Times New Roman">Alpha-Beta</font>搜索说起：</dt>
+    <dd>　</dd>
+    <dd>int AlphaBeta(int Alpha, int Beta, int Depth) {</dd>
+    <dd>　if (GameOver() || Depth &lt;= 0) {</dd>
+    <dd>　　Value = Evaluate();</dd>
+    <dd><font color="#0000FF">　　// if (Value &gt;= Beta)
+        return Beta;</font></dd>
+    <dd><font color="#0000FF">　　// if (Value &lt;= Alpha)
+        return Alpha;</font></dd>
+    <dd>　　return Value;</dd>
+    <dd>　}</dd>
+    <dd>　Best = -MaxValue;</dd>
+    <dd>　GenMoves();</dd>
+    <dd>　while (MovesLeft()) {</dd>
+    <dd>　　MakeNextMove();</dd>
+    <dd>　　Value = -AlphaBeta(-Beta, -Alpha, Depth - 1);</dd>
+    <dd>　　UndoMakeMove();</dd>
+    <dd>　　if (Value &gt;= Beta) {</dd>
+    <dd><font color="#0000FF">　　　// return Beta;</font></dd>
+    <dd><font color="#FF0000">　　　return Value;</font></dd>
+    <dd>　　}</dd>
+    <dd>　　if (Value &gt; Best) {</dd>
+    <dd>　　　Best = Value;</dd>
+    <dd>　　　if (Value &gt; Alpha) {</dd>
+    <dd>　　　　Alpha = Value;</dd>
+    <dd>　　　}</dd>
+    <dd>　　}</dd>
+    <dd>　}</dd>
+    <dd><font color="#0000FF">　// return Alpha;</font></dd>
+    <dd><font color="#FF0000">　return Best;</font></dd>
+    <dd>}</dd>
+    <dt>　</dt>
+    <dt>　　以上代码中，蓝色的被注释掉的部分是不超出边界的<font
+        face="Times New Roman">Alpha-Beta</font>搜索，红色的代码就是超出边界的<font
+        face="Times New Roman">Alpha-Beta</font>搜索了。如果不使用置换表，那么这种改动和原来没有区别，但是在置换表的作用下，情况就会有微妙的变化。探索置换表的形式<font
+        face="Times New Roman">(</font>是否超出边界<font
+        face="Times New Roman">)</font>应该与<font
+        face="Times New Roman">Alpha-Beta</font>的形式保持一致：</dt>
+    <dd>　</dd>
+    <dd>int ProbeHash(int Alpha, int Beta, int Depth) {</dd>
+    <dd>　……</dd>
+    <dd>　if (Hash.Flag == HASH_BETA) {</dd>
+    <dd>　　if (Hash.Value &gt;= Beta) {</dd>
+    <dd><font color="#0000FF">　　　// return Beta;</font></dd>
+    <dd><font color="#FF0000">　　　return Hash.Value;</font></dd>
+    <dd>　　}</dd>
+    <dd>　} else if (Hash.Flag == HASH_ALPHA) {</dd>
+    <dd>　　if (Hash.Value &lt;= Alpha) {</dd>
+    <dd><font color="#0000FF">　　　// return Alpha;</font></dd>
+    <dd><font color="#FF0000">　　　return Hash.Value;</font></dd>
+    <dd>　　}</dd>
+    <dd>　} else if (Hash.Flag == HASH_PV) {</dd>
+    <dd><font color="#0000FF">　　// if (Hash.Value &gt;= Beta)
+        return Beta;</font></dd>
+    <dd><font color="#0000FF">　　// if (Hash.Value &lt;= Alpha)
+        return Alpha;</font></dd>
+    <dd>　　return Hash.Value;</dd>
+    <dd>　}</dd>
+    <dd>}</dd>
+    <dt>　</dt>
+    <dt>　　同样的问题出现在记录置换表时：</dt>
+    <dd>　</dd>
+    <dd>int AlphaBeta(int Alpha, int Beta, int Depth) {</dd>
+    <dd>　……</dd>
+    <dd>　while (……) {</dd>
+    <dd>　　……</dd>
+    <dd>　　if (Value &gt;= Beta) {</dd>
+    <dd><font color="#0000FF">　　　// RecordHash(Beta, HASH_BETA,
+        Depth);</font></dd>
+    <dd><font color="#FF0000">　　　RecordHash(Value, HASH_BETA,
+        Depth);</font></dd>
+    <dd>　　　return ……;</dd>
+    <dd>　　}</dd>
+    <dd>　　……</dd>
+    <dd>　}</dd>
+    <dd><font color="#0000FF">　// RecordHash(Alpha, HashFlag,
+        Depth);</font></dd>
+    <dd><font color="#FF0000">　RecordHash(Best, HashFlag, Depth);</font></dd>
+    <dd>　return ……;</dd>
+    <dd>}</dd>
+    <dt>　</dt>
+    <dt>　　在带置换表的<font face="Times New Roman">Alpha-Beta</font>搜索中，到底超出边界<font
+        face="Times New Roman">(Fail-Soft)</font>和不超出边界<font
+        face="Times New Roman">(Fail-Hard)</font>哪个效率更高，到现在为止还很难有定论。从上面的代码中可以看出，采用超出边界算法时，置换表的边界变窄了，即<font
+        face="Times New Roman">Beta</font>结点的可能值从<font
+        face="Times New Roman">(Beta, MATE_VALUE</font>缩小为<font
+        face="Times New Roman">(Value, MATE_VALUE)</font>，本来低于<font
+        face="Times New Roman">Beta</font>才会命中的结点，现在只要低于<font
+        face="Times New Roman">Value</font>就能命中了。但是很多试验表明，某些局面在使用了超出边界算法时，搜索的结点数反而增加了。因为置换现象会产生搜索的不稳定性，置换表命中率高也会导致不稳定性的增强，搜索的结点数增加就是其中一个表现。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>3.3 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>胜利局面的特殊处理</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　胜利局面就是程序能搜索到的有杀局的局面，它具有特殊的分值——最大值减去“根结点”到“将死结点”的步数<font
+        face="Times New Roman">(</font>简称杀棋步数或<font
+        face="Times New Roman">DTM)</font>。而当这个数值记录到置换表的时候，就必须转化为最大值减去“当前结点”到“将死结点”的步数。</dt>
+    <dt>　　除此以外杀局还有一个显著的特点——对一个局面进行某一深度的搜索后，如果已经证明它是杀局，那么就不必进行更深层次的搜索了。利用这点，可以改进探索置换表的程序，提高置换表的命中率，从而提高搜索效率：</dt>
+    <dd>　</dd>
+    <dd>const int WIN_VALUE = MATE_VALUE - 100;</dd>
+    <dd>　</dd>
+    <dd>int ProbeHash(int Alpha, int Beta, int Depth) {</dd>
+    <dd>　……</dd>
+    <dd>　MateNode = false;</dd>
+    <dd>　if (Hash.Value &gt; WIN_VALUE) {</dd>
+    <dd>　　Hash.Value -= Ply;</dd>
+    <dd>　　MateNode = true;</dd>
+    <dd>　} else if (Hash.Value &lt; -WIN_VALUE) {</dd>
+    <dd>　　Hash.Value += Ply;</dd>
+    <dd>　　MateNode = true;</dd>
+    <dd>　}</dd>
+    <dd>　if (MateNode || Hash.Depth &gt; Depth) {</dd>
+    <dd>　　……</dd>
+    <dd>　}</dd>
+    <dd>}</dd>
+    <dt>　</dt>
+    <dt>　　这样做似乎在中局阶段并不能起到很好的效果，但是在处理杀局和残局时，搜索的结点数大幅度降低了，<font
+        face="Times New Roman">ElephantEye</font>在使用了这种方法以后，杀局和残局的处理能力有了很大的提高。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>3.4 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>长将禁手局面的特殊处理</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　由于单方面长将不变作负的规则，从表面上看，如果发生这种情况就应该，给予<font
+        face="Symbol">-</font><font face="Times New Roman">MATE_VALUE</font>的值，再根据杀棋步数作调整。但是由于长将判负并不是对某个单纯局面的评分，而是跟路径有关的，所以使用置换表时就会产生非常严重的后果，这也是搜索不稳定性的一个来源。简而言之，即同一局面由于形成路径不同而有不同的分值。</dt>
+    <dt><font size="3">　　最简单的解决办法就是不要把“利用</font>长将判负策略搜索到的局面”记录到置换表中，为此把长将判负的局面定为<font
+        face="Times New Roman">BAN_VALUE</font>，定义为<font
+        face="Times New Roman">MATE_VALUE </font><font
+        face="Symbol">-</font><font face="Times New Roman"> 50</font>，再根据杀棋步数作调整。考虑到搜索层数通常不会超过<font
+        face="Times New Roman">50</font>层，因此如果某个局面分值在<font
+        face="Times New Roman">WIN_VALUE(</font>即<font
+        face="Times New Roman">MATE_VALUE </font><font
+        face="Symbol">-</font><font face="Times New Roman"> 100)</font>和<font
+        face="Times New Roman">BAN_VALUE</font>之间，那么这个局面就是<font
+        size="3">“利用</font>长将判负策略搜索到的局面”，不记录到置换表中。根据这个思路，代码就应该写成：
+    </dt>
+    <dd>　</dd>
+    <dd>const int BAN_VALUE = MATE_VALUE - 50;</dd>
+    <dd>　</dd>
+    <dd>void RecordHash(int HashFlag, int Value, int Depth) {</dd>
+    <dd>　if (Value &gt; WIN_VALUE) {</dd>
+    <dd>　　if (Ply &gt; 0 &amp;&amp; Value &lt;= BAN_VALUE) {</dd>
+    <dd>　　　return;</dd>
+    <dd>　　}</dd>
+    <dd>　　Value += Ply;</dd>
+    <dd>　} else if (Value &lt; -WIN_VALUE) {</dd>
+    <dd>　　if (Ply &gt; 0 &amp;&amp; Value &gt;= -BAN_VALUE) {</dd>
+    <dd>　　　return;</dd>
+    <dd>　　}</dd>
+    <dd>　　Value -= Ply;</dd>
+    <dd>　}</dd>
+    <dd>　……</dd>
+    <dd>}</dd>
+    <dt>　</dt>
+    <dt>　　之所以允许<font face="Times New Roman">Ply ==
+        0</font>的结点写入置换表，是因为这样的结点是根结点，<font
+        face="Times New Roman">ElephantEye</font>需要依靠它来获得最佳着法。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>3.5</strong></font><font
+        size="4" face="楷体_GB2312"><strong>
+        置换表的覆盖策略</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　置换表的覆盖策略通常有两种：深度优先和始终覆盖。<font
+        face="Times New Roman">ElephantEye</font>以前几个版本只用了深度优先的策略，因此代码并不复杂，并且在搜索时间不太长的情况下，这种策略非常有效。但当置换表接近填满的时候，把深度优先和始终覆盖两种策略结合起来，效果就会很明显了。那么如何把这两种覆盖策略结合起来呢？</dt>
+    <dt>　　<font face="Times New Roman">ElephantEye</font>参考了国际象棋程序<font
+        face="Times New Roman">Fruit</font>的做法，采用多层结构的置换表。简而言之，一个<font
+        face="Times New Roman"><em>m</em></font>层的置换表有<font
+        face="Times New Roman"><em>n</em></font>个<font
+        face="Times New Roman">Hash</font>位置，每个<font
+        face="Times New Roman">Hash</font>位置记录<font
+        face="Times New Roman"><em>m</em></font>个局面，那么整个<font
+        face="Times New Roman">Hash</font>表可记录<font
+        face="Times New Roman"><em>m</em> × <em>n</em></font>个局面信息。记录一个局面时，找到它对应的<font
+        face="Times New Roman">Hash</font>位置中的<font
+        face="Times New Roman"><em>m</em></font>个局面，不考虑该局面本身的搜索深度，而直接覆盖深度最小的那个局面。这种策略的本质就是将深度优先和始终覆盖结合起来——原先深度最小的那个局面是始终覆盖的，而其余<font
+        face="Times New Roman"><em>m</em> </font><font
+        face="Symbol">-</font><font face="Times New Roman"> 1</font>个搜索深度更深的局面则被保留下来。</dt>
+</dl>
+
+<dir>
+    <li>上一篇　<a href="eleeye_struct.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>二<font
+        face="Times New Roman">)</font>：棋盘结构和着法生成器</a></li>
+    <li>下一篇　<a href="eleeye_heuristic.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>四<font
+        face="Times New Roman">)</font>：启发算法</a></li>
+</dir>
+<div align="center"><center>
+
+<table border="0">
+    <tr>
+        <td><p align="center"><a
+        href="http://www.xqbase.com/" target="_blank"><img
+        src="xqbase.gif" border="0" width="88"
+        height="31"></a></p>
+        </td>
+    </tr>
+    <tr>
+        <td><a href="http://www.xqbase.com/"
+        target="_blank"><font size="2" face="Arial"><strong>www.xqbase.com</strong></font></a></td>
+    </tr>
+</table>
+</center></div>
+</body>
+</html>

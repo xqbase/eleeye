@@ -1,0 +1,140 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=gb_2312-80">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>中国象棋程序设计探索(八)：后台思考和时间策略</title>
+</head>
+
+<body background="background.gif">
+
+<dl>
+    <div align="center"><center>
+    <dt><font size="6" face="隶书">中国象棋程序设计探索</font></dt>
+    </center></div><div align="center"><center>
+    <dt>　</dt>
+    </center></div><div align="center"><center>
+    <dt>象棋百科全书网 <font face="Times New Roman">(</font><a
+        href="mailto:webmaster@xqbase.com"><font
+        face="Times New Roman">webmaster@xqbase.com</font></a><font
+        face="Times New Roman">)</font></dt>
+    </center></div><div align="center"><center>
+    <dt><font face="Times New Roman">2005</font>年<font
+        face="Times New Roman">6</font>月初稿，<font
+        face="Times New Roman">2007</font>年<font
+        face="Times New Roman">5</font>月修订</dt>
+    </center></div>
+    <dt>　</dt>
+    <dt><font size="5" face="Arial"><strong>(</strong></font><font
+        size="5" face="楷体_GB2312"><strong>八</strong></font><font
+        size="5" face="Arial"><strong>) </strong></font><font
+        size="5" face="楷体_GB2312"><strong>后台思考和时间策略</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　在阅读本章前，建议读者先阅读<a
+        href="http://www.xqbase.com/" target="_blank">象棋百科全书网</a>中《<a
+        href="outline.htm" target="_blank">对弈程序基本技术</a>》专题的以下几篇译文：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font><a
+        href="other_ponder.htm" target="_blank">其他策略——后台思考</a><font
+        face="Times New Roman">(Bruce Moreland)</font>。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>8.1 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>后台思考</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">UCCI</font>协议不需要对后台思考作特别处理，如果引擎接收了指令“<font
+        face="Times New Roman">go ponder ...</font>”，那么搜索过程中时钟暂时不起作用，直到收到“<font
+        face="Times New Roman">ponderhit</font>”指令后才启用时钟。因此，后台思考实际上相当于无限制的思考。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>8.2 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>时间策略</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　时间策略在各个象棋程序中差异很大，有的程序根本没有时间策略，只能设定固定的搜索深度，或者在固定的时间中止思考，例如浅红象棋协议目前就没有时间策略。<font
+        face="Times New Roman">UCCI</font>协议可以把时限规则告诉引擎，由引擎自动分配时间，时限规则可以是以下两种：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>时段制，即在限定时间内走完规定的步数，用“<font
+        face="Times New Roman">go time &lt;time&gt; movestogo
+        &lt;moves_to_go&gt;</font>”命令；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>加时制，即在限定时间内走完整盘棋，但每步会加上几秒，用“<font
+        face="Times New Roman">go time &lt;time&gt; increment
+        &lt;increment&gt;</font>”命令。</dt>
+    <dt>　　<font face="Times New Roman">ElephantEye</font>的时间策略由<font
+        face="Times New Roman">&lt;search.h&gt;</font>里的<font
+        face="Times New Roman">SearchMain()</font>函数来处理，不管处理哪个规则，都会分配一个合适的时间<font
+        face="Times New Roman">(ProperTime)</font>用来走棋，这个时间是这样计算的：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>时段制：分配时间
+        <font face="Times New Roman">= </font>剩余时间 <font
+        face="Times New Roman">/ </font>要走的步数；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>加时制：分配时间
+        <font face="Times New Roman">= </font>每步增加的时间
+        <font face="Times New Roman">+ </font>剩余时间 <font
+        face="Times New Roman">/ 20 (</font>即假设棋局会在<font
+        face="Times New Roman">20</font>步内结束<font
+        face="Times New Roman">)</font>；</dt>
+    <dt>　</dt>
+    <dt>　　在每次迭代加深的过程中，一个深度结束后，即将进行更深一层的搜索时，需要根据用时来判断是否终止搜索，判断的依据通常有：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>一般情况下，用时超过分配时间的一半，就要终止搜索；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>如果连续<em>
+        </em><font face="Times New Roman"><em>n</em></font><em> </em>次的迭代加深返回同样的着法，那么用时超过分配时间的<font
+        face="Times New Roman">1/4</font>时就可以终止搜索，因为更深一层的搜索很有可能还是得到同样的着法；</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>如果当前深度得到的分值比上一深度到的分值低很多，那么用时超过分配时间才终止搜索<font
+        face="Times New Roman">(</font>仅仅超过分配时间的一半是不够的<font
+        face="Times New Roman">)</font>，期待搜索得更深以挽回劣势。</dt>
+    <dt>　　另外，搜索程序还会确定一个最大搜索时间(通常是剩余时间的一半)，如果搜索花费的时间超过预先设定的最大搜索时间，则强行中止搜索，这个检测过程由<font
+        face="Times New Roman">Interrupt()</font>函数来完成。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>8.3 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>搜索杀棋的策略</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">ElephantEye</font>没有专门搜索杀棋的功能，如果存在杀棋的话<font
+        face="Times New Roman">(</font>不管是杀死对方还是被对方杀死<font
+        face="Times New Roman">)</font>，会在搜索中自动找到。是否能找到杀棋和搜索深度有关，某一深度下找不到杀棋，但深一层搜索就可能找到；但和一般局面不同的是，如果一定深度能找到杀棋，那么再深的深度会得到同样的结果。因此，如果找到杀棋，那么程序要使用不同的策略。<font
+        face="Times New Roman">ElephantEye</font>处理杀棋局面时，用到以下几个策略：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>置换表的存取策略，前面曾经介绍过，如果置换表中存储的某个局面已被确认找到杀棋，那么探测到这样的局面时就不需要考虑深度条件。</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>根结点做迭代加深时，找到杀棋后搜索就立即停止。<font
+        face="Times New Roman">ElephantEye</font>为杀局设定了边界<font
+        face="Times New Roman">WIN_VALUE</font>，其值略比<font
+        face="Times New Roman">MATE_VALUE</font>小一些，局面分值在区间<font
+        face="Times New Roman">(</font><font face="Symbol">-</font><font
+        face="Times New Roman">WIN_VALUE, WIN_VALUE)</font>以外，就说明该局面有杀棋。</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>如果根结点的所有着法中，除了一个着法可以支撑<font
+        face="Times New Roman">(</font>即分值大于<font
+        face="Symbol">-</font><font face="Times New Roman">WIN_VALUE)</font>以外，其余着法都会输掉<font
+        face="Times New Roman">(</font>即分值都小于<font
+        face="Symbol">-</font><font face="Times New Roman">WIN_VALUE)</font>，那么应该立即返回这个唯一着法。</dt>
+    <dt>　　最后一点是<font face="Times New Roman">ElephantEye</font>最有特色之处，这就是说，当迭代加深过程中遇到这种情况时，就没有必要做更深的搜索了。在对某个深度的完全搜索完成后，对最佳着法设为禁着，再对根结点作一次搜索，如果分值小于<font
+        face="Symbol">-</font><font face="Times New Roman">WIN_VALUE</font>，则说明除这个最佳着法以外其余着法都会输掉，这种搜索称为“唯一着法检验搜索”，<font
+        face="Times New Roman">&lt;search.cpp&gt;</font>中需要用变量<font
+        face="Times New Roman">bCheckUnique</font>来控制。启用唯一着法检验搜索时，有两个地方要注意：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>使用零窗口的技巧，即用<font
+        face="Times New Roman">(</font><font face="Symbol">-</font><font
+        face="Times New Roman">WIN_VALUE, 1 </font><font
+        face="Symbol">-</font><font face="Times New Roman"> WIN_VALUE)</font>窗口作搜索，以减少搜索的结点数；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>根结点不记录到置换表中。</dt>
+</dl>
+
+<dir>
+    <li>上一篇　<a href="eleeye_book.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>七<font
+        face="Times New Roman">)</font>：开局库</a></li>
+    <li>下一篇　<a href="eleeye_evaluate.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>九<font
+        face="Times New Roman">)</font>：局面评价函数</a></li>
+    </li>
+</dir>
+<div align="center"><center>
+
+<table border="0">
+    <tr>
+        <td><p align="center"><a
+        href="http://www.xqbase.com/" target="_blank"><img
+        src="xqbase.gif" border="0" width="88"
+        height="31"></a></p>
+        </td>
+    </tr>
+    <tr>
+        <td><a href="http://www.xqbase.com/"
+        target="_blank"><font size="2" face="Arial"><strong>www.xqbase.com</strong></font></a></td>
+    </tr>
+</table>
+</center></div>
+</body>
+</html>

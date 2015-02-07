@@ -1,0 +1,289 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=gb_2312-80">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>中国象棋程序设计探索(五)：克服水平线效应</title>
+</head>
+
+<body background="background.gif">
+
+<dl>
+    <div align="center"><center>
+    <dt><font size="6" face="隶书">中国象棋程序设计探索</font></dt>
+    </center></div><div align="center"><center>
+    <dt>　</dt>
+    </center></div><div align="center"><center>
+    <dt>象棋百科全书网 <font face="Times New Roman">(</font><a
+        href="mailto:webmaster@xqbase.com"><font
+        face="Times New Roman">webmaster@xqbase.com</font></a><font
+        face="Times New Roman">)</font></dt>
+    </center></div><div align="center"><center>
+    <dt><font face="Times New Roman">2005</font>年<font
+        face="Times New Roman">6</font>月初稿，<font
+        face="Times New Roman">2007</font>年<font
+        face="Times New Roman">12</font>月修订</dt>
+    </center></div>
+    <dt>　</dt>
+    <dt><font size="5" face="Arial"><strong>(</strong></font><font
+        size="5" face="楷体_GB2312"><strong>五</strong></font><font
+        size="5" face="Arial"><strong>) </strong></font><font
+        size="5" face="楷体_GB2312"><strong>克服水平线效应</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　在阅读本章前，建议读者先阅读<a
+        href="http://www.xqbase.com/" target="_blank">象棋百科全书网</a>中《<a
+        href="outline.htm" target="_blank">对弈程序基本技术</a>》专题的以下几篇译文：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font><a
+        href="advanced_intro1.htm" target="_blank">高级搜索方法——简介<font
+        face="Times New Roman">(</font>一<font
+        face="Times New Roman">)</font></a><font
+        face="Times New Roman">(David Eppstein)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font><a
+        href="advanced_quiescent.htm" target="_blank">高级搜索方法——静态搜索</a><font
+        face="Times New Roman">(Bruce Moreland)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(3) </font><a
+        href="advanced_nullmove.htm" target="_blank">高级搜索方法——空着裁剪</a><font
+        face="Times New Roman">(Bruce Moreland)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(4) </font><a
+        href="other_repetition.htm" target="_blank">其他策略——重复检测</a><font
+        face="Times New Roman">(Bruce Moreland)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(5) </font><a
+        href="other_contempt.htm" target="_blank">其他策略——藐视因子</a><font
+        face="Times New Roman">(Bruce Moreland)</font>。</dt>
+    <dt>　</dt>
+    <dt>　　在象棋程序的搜索技术中，裁剪和延伸是最有挖掘潜力之处，在各个程序中的差异也比较大。<font
+        face="Times New Roman">ElephantEye</font>在这方面没有花太多的笔墨，空着裁剪、静态搜索和选择性延伸跟其他程序大同小异，读者可能会认为“历史表裁剪”<font
+        face="Times New Roman">(History Pruning)</font>是<font
+        face="Times New Roman">ElephantEye</font>的亮点，但是笔者对该算法的原理并未完全把握，而且很多细节还有待摸索，所以这里就不作介绍，有兴趣的读者可参考<font
+        face="Times New Roman">ElephantEye</font>源程序中<font
+        face="Times New Roman">&lt;search.cpp&gt;</font>的相关注释。笔者将对几个比较成熟可靠的算法作一些介绍。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>5.1 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>无害裁剪</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　很多局面不需要搜索即可知道它的确切评价值，或者至少超出<font
+        face="Times New Roman">Alpha-Beta</font>窗口，此时就可以把该结点以下的搜索树裁剪掉，而不影响搜索结果，这类裁剪称为“无害裁剪”，<font
+        face="Times New Roman">ElephantEye</font>使用了以下几种无害裁剪：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>杀棋步数<font
+        face="Times New Roman">(DTM)</font>裁剪。由于<font
+        face="Times New Roman">DTM</font>调整的缘故，在深度为<font
+        face="Times New Roman">Ply</font>的结点中，搜索结果不会落在窗口<font
+        face="Times New Roman">(Ply </font><font face="Symbol">-</font><font
+        face="Times New Roman"> MATE_VALUE, MATE_VALUE </font><font
+        face="Symbol">-</font><font face="Times New Roman"> Ply)</font>外，所以当<font
+        face="Times New Roman">(Alpha, Beta)</font>窗口和该窗口没有交叠时，立即可以作出裁剪。裁剪有两种情况，要么<font
+        face="Times New Roman">MATE_VALUE </font><font
+        face="Symbol">-</font><font face="Times New Roman"> Ply
+        &lt;= Alpha</font>，要么<font face="Times New Roman">Ply
+        </font><font face="Symbol">-</font><font
+        face="Times New Roman"> MATE_VALUE &gt;= Beta</font>，<font
+        face="Times New Roman">ElephantEye</font>只考虑了后者。</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>重复裁剪。如果出现重复局面，那么应当根据规则直接判和或判某方长打作负，所以应当返回相应的分值。尽管象棋规则规定局面重复三次或更多次才予以判定，但在搜索过程中只要遇到一次重复，继续搜索下去就会有第二次、第三次，所以<font
+        face="Times New Roman">ElephantEye</font>只要遇到一次重复就不再搜索下去，但根结点要另外处理<font
+        face="Times New Roman">(</font>否则一个着法也没搜索，就出不了子了<font
+        face="Times New Roman">)</font>。</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>和棋裁剪。如果双方都没有明显可以杀死对方的子力，即可返回和棋分值<font
+        face="Times New Roman">(0</font>或藐视因子<font
+        face="Times New Roman">)</font>，而不必继续往下搜索。<font
+        face="Times New Roman">ElephantEye</font>把双方都只剩下仕<font
+        face="Times New Roman">(</font>士<font
+        face="Times New Roman">)</font>相<font
+        face="Times New Roman">(</font>象<font
+        face="Times New Roman">)</font>的局面规定为和棋局面。</dt>
+    <dt>　　<font face="Times New Roman">(4) </font>置换裁剪。置换表的一个作用就是利用置换现象裁剪掉某些分枝，前面已经作了详细的介绍。这里要提的是，由于存在“搜索的不稳定性”的原因，置换裁剪并非绝对无害的，<font
+        face="Times New Roman">ElephantEye</font>就不记录“利用长将判负策略搜索到的局面”，前面也有所介绍。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>5.2 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>带检验的空着裁剪</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　“带检验的空着裁剪”<font
+        face="Times New Roman">(Verified Null-Move Pruning)</font>指的是检验空着裁剪是否安全的算法，它首先由<font
+        face="Times New Roman">Tabibi</font>发表在<font
+        face="Times New Roman">2002</font>年的<font
+        face="Times New Roman">ICGA(</font>原<font
+        face="Times New Roman">ICCA)</font>杂志上<font
+        face="Times New Roman">(</font>参阅<font
+        face="Times New Roman">Tabibi OD, Netanyahu NS: <em><strong>Verified
+        Null-Move Pruning</strong></em><em>, ICGA J.</em> 25 (3):
+        153-161, <strong>2002</strong></font>，可以从互联网上找到<font
+        face="Times New Roman">)</font>。其内容可以概括为：
+    </dt>
+    <dt>　　<font face="Times New Roman">(1) </font>用<font
+        face="Times New Roman"><em>R</em> = 3</font>的空着裁剪进行搜索；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>如果高出边界，那么做浅一层的搜索<font
+        face="Times New Roman">(</font>这就意味着一层的搜索是无法做带验证的空着裁剪的<font
+        face="Times New Roman">)</font>；</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>做浅一层的搜索时，子结点用<font
+        face="Times New Roman"><em>R</em> = 3</font>的不带验证的空着裁剪；</dt>
+    <dt>　　<font face="Times New Roman">(4) </font>如果浅一层的搜索高出边界，那么带验证的空着裁剪是成功的，否则必须重新做完全的搜索。</dt>
+    <dt>　　笔者认为这里存在很多问题：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>用<font
+        face="Times New Roman"><em>R</em> = 3</font>非常冒进，还是用<font
+        face="Times New Roman"><em>R</em> = 2</font>比较合适；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>检验时做浅一层的搜索太浪费时间，裁剪的层数可以跟空着裁剪一样的<font
+        face="Times New Roman"><em>R</em></font>值一样，而且窗口也用以<font
+        face="Times New Roman">Beta</font>为界的零窗口；</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>做检验时，子结点仍旧应该做带检验的空着裁剪，否则“连停着杀”就检测不出来了。</dt>
+    <dt>　　<font face="Times New Roman">ElephantEye</font>是否启用空着裁剪，分三种情况讨论：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>我方进攻子力达到<font
+        face="Times New Roman">3</font>个，就使用不带检验的空着裁剪；</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>我方进攻子力小于<font
+        face="Times New Roman">3</font>个，则使用带检验的空着裁剪；</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>我方只有仕<font
+        face="Times New Roman">(</font>士<font
+        face="Times New Roman">)</font>相<font
+        face="Times New Roman">(</font>象<font
+        face="Times New Roman">)</font>等守子，则禁用空着裁剪。</dt>
+    <dt>　　因此，<font face="Times New Roman">ElephantEye</font>的代码中，和空着裁剪有关的部分如下：</dt>
+    <dd>　</dd>
+    <dd>const int NULL_REDUCTION = 2</dd>
+    <dd>　</dd>
+    <dd>int AlphaBeta(int Alpha, int Beta, int Depth, bool Verify
+        = false) {</dd>
+    <dd>　……</dd>
+    <dd>　if (!Verify &amp;&amp; !InCheck() &amp;&amp; NullOkay())
+        {</dd>
+    <dd>　　MakeNull();</dd>
+    <dd>　　Value = -AlphaBeta(-Beta, 1 - Beta, Depth - 1 -
+        NULL_REDUCTION);</dd>
+    <dd>　　UndoNull();</dd>
+    <dd>　　if (Value &gt;= Beta<font color="#FF0000">
+        &amp;&amp; (NullSafe() || AlphaBeta(Beta - 1, Beta, Depth
+        - NULL_REDUCTION, true) &gt;= Beta)</font>) {</dd>
+    <dd>　　　return Value; </dd>
+    <dd>　　}</dd>
+    <dd>　}</dd>
+    <dd>　……</dd>
+    <dd>}</dd>
+    <dt>　</dt>
+    <dt>　　这个技术使得<font face="Times New Roman">ElephantEye</font>在残局中仍旧能启用空着裁剪，而且不会出现走错的情况，因此<font
+        face="Times New Roman">ElephantEye</font>在几乎不带残局知识的情况下，残局的棋力还是非常高的。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>5.3 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>静态搜索</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　静态搜索尽管实现起来比较简单，但是很多技术细节仍旧是需要考虑的，问题主要有以下几个：</dt>
+    <dt>　　<font face="Times New Roman">(1) </font>如果结点被将军，是否要产生全部着法。绝大多数程序都没有考虑结点被将军的情况，因为将军判断是很花费时间的。而<font
+        face="Times New Roman">ElephantEye</font>在将军判断上有优势，因此在将军时产生全部的着法。因此有些多步连杀的排局，如果每步将军都吃子，那么<font
+        face="Times New Roman">ElephantEye</font>只需要搜索<font
+        face="Times New Roman">1</font>层就可以解出了，因此静态搜索中判断将军对于搜索杀棋是很有好处的。</dt>
+    <dt>　　<font face="Times New Roman">(2) </font>如何使用<font
+        face="Times New Roman">MVV/LVA</font>启发。<font
+        face="Times New Roman">MVV/LVA</font>是静态搜索最常用的启发方式，如果棋盘的数据结构精心设计，<font
+        face="Times New Roman">SEE</font>也是值得尝试的。尽管<font
+        face="Times New Roman">MVV/LVA</font>很简单，但是究竟根据“被吃子价值<font
+        face="Times New Roman">-</font>攻击子价值”来排序，还是先排序“被吃子价值”，相同的情况再排序“攻击子价值”呢？<font
+        face="Times New Roman">ElephantEye</font>是以<font
+        face="Times New Roman">MVV(LVA)</font>的值为依据的，可参考前一章<font
+        face="Times New Roman">(</font>吃子启发<font
+        face="Times New Roman">)</font>。</dt>
+    <dt>　　<font face="Times New Roman">(3) </font>是否需要用其他搜索或启发算法。常规搜索中的很多搜索算法都不适合于静态搜索，这就是静态搜索简单的缘故。静态搜索本身就是空着启发的<font
+        face="Times New Roman">(</font>第一个着法总是空着<font
+        face="Times New Roman">)</font>，但由于没有深度参数，所以不可能使用空着裁剪。另外，几乎所有的程序都不在静态搜索中使用<font
+        face="Times New Roman">PVS</font>、置换表、杀手着法启发、历史表启发等算法。</dt>
+    <dt>　　<font face="Times New Roman">(4) </font>是否所有的吃子都需要考虑。如果搜索全部吃子着法，那么程序在叶子结点上花费的时间就非常浪费。<font
+        face="Times New Roman">ElephantEye</font>在搜索所有吃子着法时，对着法作了过滤——吃不过河的兵和吃仕<font
+        face="Times New Roman">(</font>士<font
+        face="Times New Roman">)</font>相<font
+        face="Times New Roman">(</font>象<font
+        face="Times New Roman">)</font>的着法都不搜索了，尽管仕<font
+        face="Times New Roman">(</font>士<font
+        face="Times New Roman">)</font>和相<font
+        face="Times New Roman">(</font>象<font
+        face="Times New Roman">)</font>在<font
+        face="Times New Roman">ElephantEye</font>的子力评价中分数很高<font
+        face="Times New Roman">(</font>轻子价值的<font
+        face="Times New Roman">20%</font>到<font
+        face="Times New Roman">40%)</font>，但静态搜索本身就是对局面的粗略评价。</dt>
+    <dt>　</dt>
+    <dt><font size="4" face="Arial"><strong>5.4 </strong></font><font
+        size="4" face="楷体_GB2312"><strong>选择性延伸</strong></font></dt>
+    <dt>　</dt>
+    <dt>　　常用的选择性延伸有这几种策略：<font
+        face="Times New Roman">(1) </font>将军延伸；<font
+        face="Times New Roman">(2) </font>单一应着延伸；<font
+        face="Times New Roman">(3) </font>杀棋威胁延伸；<font
+        face="Times New Roman">(4) </font>兑子延伸；<font
+        face="Times New Roman">(5) </font>通路兵挺进延伸。<font
+        face="Times New Roman">ElephantEye</font>只考虑了前两种，代码很简单：</dt>
+    <dd>　</dd>
+    <dd>int AlphaBeta(int Alpha, int Beta, int Depth) {</dd>
+    <dd>　……</dd>
+    <dd>　MoveStruct ThisMove = NextMove();</dd>
+    <dd>　while (ThisMove != NullMove) {</dd>
+    <dd>　　MakeMove(ThisMove);</dd>
+    <dd><font color="#FF0000">　　NewDepth = (InCheck() ||
+        SingleReply()</font><font color="#0000FF"> || MateThreat()
+        || ReCapture()</font><font color="#FF0000"> ? Depth :
+        Depth - 1);</font></dd>
+    <dd>　　Value = Search(-Beta, -Alpha, NewDepth);</dd>
+    <dd>　　UndoMove();</dd>
+    <dd>　　……</dd>
+    <dd>　　ThisMove = NextMove();</dd>
+    <dd>　}</dd>
+    <dd>　……</dd>
+    <dd>}</dd>
+    <dt>　</dt>
+    <dt>　　<font face="Times New Roman">ElephantEye</font>的早期版本采用了杀棋威胁延伸和兑子延伸<font
+        face="Times New Roman">(</font>以上代码中的蓝色部分<font
+        face="Times New Roman">)</font>，尽管现在已经不再使用了，但这里不妨介绍一下。</dt>
+    <dt>　　杀棋威胁延伸指的是，对方走出一步催杀的棋时，需要多搜索一层，而判断对方是否催杀则是利用空着裁剪，为此空着裁剪的代码应该作适当的修改：</dt>
+    <dd>　</dd>
+    <dd>……</dd>
+    <dd>MateThreat = false;</dd>
+    <dd>if (!InCheck() &amp;&amp; NullOkay()) {</dd>
+    <dd>　MakeNull();</dd>
+    <dd>　Value = -AlphaBeta(-Beta, 1 - Beta, Depth - 1 - NULL_REDUCTION);</dd>
+    <dd>　UndoNull();</dd>
+    <dd>　if (Value &gt;= Beta) {</dd>
+    <dd>　　return Value; </dd>
+    <dd><font color="#FF0000">　} else if (Value == Ply + 2 -
+        MATE_VALUE) {</font></dd>
+    <dd><font color="#FF0000">　　MateThreat = true;</font></dd>
+    <dd>　}</dd>
+    <dd>}</dd>
+    <dd>……</dd>
+    <dt>　</dt>
+    <dt>　　如果本方走了空着，而立即被对方将死<font
+        face="Times New Roman">(</font>该结点的深度是<font
+        face="Times New Roman">Ply + 2)</font>，那么返回值作<font
+        face="Times New Roman">DTM</font>调整将变成<font
+        face="Times New Roman">Ply + 2 </font><font face="Symbol">-</font><font
+        face="Times New Roman"> MATE_VALUE</font>，因此该值就成为判断是否催杀的依据。</dt>
+    <dt>　　兑子延伸指的是，遇到连续两个吃子着法，并且吃同一格子的子，这样的着法称为“吃回”<font
+        face="Times New Roman">(ReCapture)</font>，需要多搜索一层，为此判断两个着法是否吃回的函数可以写成：</dt>
+    <dd>　</dd>
+    <dd>inline bool ReCapture(MoveStruct LastMove, MoveStruct
+        ThisMove) {</dd>
+    <dd>　return LastMove.Cpt != 0 &amp;&amp; LastMove.Dst ==
+        ThisMove.Dst</dd>
+    <dd>}</dd>
+</dl>
+
+<dir>
+    <li>上一篇　<a href="eleeye_heuristic.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>四<font
+        face="Times New Roman">)</font>：启发算法</a></li>
+    <li>下一篇　<a href="eleeye_parallel.htm">中国象棋程序设计探索<font
+        face="Times New Roman">(</font>六<font
+        face="Times New Roman">)</font>：并行搜索技术探索</a></li>
+</dir>
+<div align="center"><center>
+
+<table border="0">
+    <tr>
+        <td><p align="center"><a
+        href="http://www.xqbase.com/" target="_blank"><img
+        src="xqbase.gif" border="0" width="88"
+        height="31"></a></p>
+        </td>
+    </tr>
+    <tr>
+        <td><a href="http://www.xqbase.com/"
+        target="_blank"><font size="2" face="Arial"><strong>www.xqbase.com</strong></font></a></td>
+    </tr>
+</table>
+</center></div>
+</body>
+</html>

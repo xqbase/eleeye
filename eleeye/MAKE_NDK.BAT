@@ -1,0 +1,3 @@
+/NDK/ARM/BIN/arm-linux-androideabi-g++.exe -DNDEBUG -O4 -Wall -I/NDK/ARM/include -B/NDK/ARM/lib -oeleeye ../base/pipe.cpp ucci.cpp pregen.cpp position.cpp genmoves.cpp hash.cpp book.cpp movesort.cpp preeval.cpp evaluate.cpp search.cpp eleeye.cpp
+/NDK/X86/BIN/i686-linux-android-g++.exe -DNDEBUG -O4 -Wall -fno-exceptions -I/NDK/X86/include -B/NDK/X86/lib -oeleeye_x86 ../base/pipe.cpp ucci.cpp pregen.cpp position.cpp genmoves.cpp hash.cpp book.cpp movesort.cpp preeval.cpp evaluate.cpp search.cpp eleeye.cpp
+/NDK/MIPS/BIN/mipsel-linux-android-g++.exe -DNDEBUG -O4 -Wall -fno-exceptions -I/NDK/MIPS/include -B/NDK/MIPS/lib -oeleeye_mips ../base/pipe.cpp ucci.cpp pregen.cpp position.cpp genmoves.cpp hash.cpp book.cpp movesort.cpp preeval.cpp evaluate.cpp search.cpp eleeye.cpp

@@ -1,0 +1,468 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="keywords" content="Qianhong, Xiangqi, Chinese Chess, AI, engine, plugin, WinBoard">
+<meta name="description" content="Plugin Specification v1.3 for Qianhong Xiangqi">
+<title>Qianhong Xiangqi Plugin Spec</title>
+
+<style type="text/css" media="screen">
+<!--
+body { font: 10pt Arial, sans-serif; margin: 40px }
+
+a:link    { text-decoration: none; color: blue }
+a:visited { text-decoration: none; color: blue }
+a:active  { text-decoration: underline; color: #c00 }
+a:hover   { text-decoration: underline; color: #c00 }
+
+h3 { font: bold 14pt Arial, sans-serif; color: #006 }
+h4 { font: bold 12pt Arial, sans-serif; color: #006 }
+em { font: bold italic 12pt Arial, sans-serif; color: #006 }
+h3 em { font: bold italic 16pt Verdana, sans-serif; color: #f77 }
+
+pre.text   { font: 10pt "Courier New", mono-space;
+             padding: 4px; margin: 16px; border: 1px solid gray }
+pre.plugin { background: black; color: #CCC; font: bold 10pt "Courier New", mono-space;
+             padding: 4px; margin: 16px; border: 3px solid gray }
+
+pre em     { font: bold 10pt "Courier New", mono-space }
+pre em.qh  { color: #f88 }
+pre em.pl  { color: #8df }
+
+table { border-collapse: collapse; border: 1px solid gray; 
+        padding: 4px; margin: 16px; }
+td { border: 1px solid gray; font: 10pt Arial, sans-serif; 
+        padding: 4px; vertical-align: top }
+-->
+</style>
+<style type="text/css" media="print">
+<!--
+body { font: 10pt Arial, sans-serif; }
+
+a:link    { text-decoration: none; color: blue }
+a:visited { text-decoration: none; color: blue }
+a:active  { text-decoration: underline; color: #c00 }
+a:hover   { text-decoration: underline; color: #c00 }
+
+h3 { font: bold 14pt Arial, sans-serif; color: #006 }
+h4 { font: bold 12pt Arial, sans-serif; color: #006 }
+em { font: bold italic 12pt Arial, sans-serif; color: #006 }
+h3 em { font: bold italic 16pt Verdana, sans-serif; color: #0006 }
+
+pre.text   { font: 10pt "Courier New", mono-space;
+             padding: 4px; margin: 16px; border: 1px solid gray }
+pre.plugin { font: bold 10pt "Courier New", mono-space;
+             padding: 4px; margin: 16px; border: 3px solid gray }
+
+pre em     { font: bold 10pt "Courier New", mono-space }
+
+table { border-collapse: collapse; border: 1px solid gray; 
+        padding: 4px; margin: 16px; }
+td { border: 1px solid gray; font: 10pt Arial, sans-serif; 
+        padding: 4px; vertical-align: top }
+-->
+</style>
+
+</head>
+
+<body>
+
+<h3><em>Qianhong Xiangqi</em>&nbsp;&nbsp;Plugin Specification</h3>
+<b>QHPLUGIN V1.3</b><br>
+Jeremy Craner<br>
+2004/07/03<br>
+<a href="http://www.jcraner.com/qianhong/" target="_new">
+www.jcraner.com/qianhong/</a><br>
+<br>&nbsp;
+
+<p><em>Plugin Specification</em>
+
+<p>Want to write an AI engine to use with Qianhong? It's not too difficult if you have 
+some programming experience and a Windows/DOS compiler. 
+
+<p>It turns out that, with the addition of plugin capability, Qianhong is sort of like
+a WinBoard for Chinese Chess. I hadn't heard of WinBoard when I made the plugins, but
+the structure is pretty similar: a GUI that uses piped I/O to communicate with AI
+engines. Maybe Qianhong will grow into a Xiangqi WinBoard... who knows. From a glance
+at the <a href="http://www.tim-mann.org/xboard.html" target="_new"><img src="online.gif" border=0>&nbsp;WinBoard site</a>,
+though, it appears that WinBoard has been around a long time and has a huge following.
+
+<p>The following pages describe the Qianhong plugin protocol:
+
+<ul>
+<li><a href="#plugin_1_intro">1. Overview</a>
+<li><a href="#plugin_2_modes">2. Plugin Modes</a>
+<li><a href="#plugin_3_commands">3. Commands</a>
+<li><a href="#plugin_4_tricky">4. Tricky Stuff</a>
+</ul>
+<hr>
+<p><a name="plugin_1_intro"><em>1. Plugin Overview</em></a>
+
+<p>A Qianhong AI plugin is simply a Windows console program that is capable of reading 
+standard input and writing standard output. Qianhong runs the plugin executable as a
+detached process with its standard I/O redirected to anonymous pipes. A text-based 
+protocol, which consists of only a handful of simple commands, is used to communicate 
+with the plugin.
+
+<p>As an example, the following text shows the first part of a game against QHPlugin.exe
+(the default Qianhong AI engine) on a level 3 setting:
+
+<pre class="plugin">LEVEL 3                  <em class="qh">(Qianhong sets the AI level)</em>
+OK - Set AI level to 3   <em class="pl">(Plugin accepts it)</em>
+PLAY H2-E2               <em class="qh">(Qianhong plays a move: round 1, red)</em>
+OK                       <em class="pl">(Plugin accepts it)</em>
+AI                       <em class="qh">(Qianhong asks for AI to move)</em>
+B9-C7                    <em class="pl">(Plugin plays a move: round 1, black)</em>
+PLAY E2-E6               <em class="qh">(Qianhong plays a move: round 2, red)</em>
+OK                       <em class="pl">(Plugin accepts it)</em>
+AI                       <em class="qh">(Qianhong asks for AI to move)</em>
+C7-E6                    <em class="pl">(Plugin plays a move: round 2, black)</em>
+UNDO                     <em class="qh">(Qianhong backs out last move)</em>
+OK                       <em class="pl">(Plugin accepts it)</em></pre>
+
+<p>That's the basic interface. Now for the details: 
+<a href="#plugin_2_modes">2. Plugin Modes</a>.
+
+<p><hr>
+
+<p><a name="plugin_2_modes"><em>2. Plugin Modes</em></a>
+
+<p>Plugins are run in one of two modes, as specified by a command-line parameter: 
+"-info" and "-plugin". The <a href="#info">info mode</a> is used during Qianhong startup. 
+It allows Qianhong to query the plugin for a description of its capabilities. 
+The <a href="#plugin">plugin mode</a> is used to actually play a game of Xiangqi.
+
+<p><a name="info"><em>Info Mode</em></a>
+
+<p>When the plugin is run with a "-info" argument, all it has to do is print a standard
+list of information and exit. The information is of the format:
+<pre class="text">Protocol Version
+AI Engine Name
+LEVELS &lt;N&gt;
+(N lines of levels)
+UNDO &lt;0/1&gt;
+HINTS &lt;0/1&gt;
+RULES &lt;0/1&gt;
+BGTHINK &lt;0/1&gt;
+TIMEOUT &lt;0/1&gt;
+(Additional lines of Info)
+ENDINFO</pre>
+
+Take the info from QHPlugin.exe as an example (you can see
+this yourself by running "&lt;Qianhong dir&gt;\Plugins\Qianhong\QHPlugin.exe -info"):
+
+<pre class="plugin">C:\Qianhong\Plugins\Qianhong>qhplugin.exe -info
+QHPLUGIN V1.3
+Qianhong
+LEVELS 3
+1 - Very Easy
+2 - Easy
+3 - Smarter
+UNDO 1
+HINTS 1
+RULES 1
+BGTHINK 0
+TIMEOUT 0
+Qianhong AI engine for Qianhong v3.1
+By Jeremy Craner, 2001-2004
+ENDINFO</pre>
+
+
+<p><b>Protocol Version</B> The first line is the plugin protocol version. It should read "QHPLUGIN V1.3" (though V1.2 is still supported). The version number allows for future expansion.
+
+<p><b>AI Engine Name</B> The second line gives the AI engine name that appears in the game.
+You'll want to keep it short because the player name boxes are not very big...
+
+<p><b>Levels</B> The third line tells how many different AI levels the plugin has. 
+The subsequent lines list each level, one per line, with the number and any additional
+text you want to use for description. Levels must be designated by a number. The extra
+text (preceded by a space) is optional.
+
+<p><b>Undo</B> This tells Qianhong whether the <a href="#undo">UNDO</a> command is supported. 
+Use 0 for no, 1 for yes.
+
+<p><b>Hints</B> This tells Qianhong whether the <a href="#hints">HINTS</a> command is supported. 
+Use 0 for no, 1 for yes.
+
+<p><b>Rules</B> This tells Qianhong whether the <a href="#ban">BAN</a> command is supported. 
+Use 0 for no, 1 for yes.
+
+<p><b>BGThink</B> This tells Qianhong whether the <a href="#bgthink">BGTHINK</a> command is supported. 
+Use 0 for no, 1 for yes.
+
+<p><b>Timeout</B> This tells Qianhong whether the <a href="#timeout">TIMEOUT</a> command is supported. 
+Use 0 for no, 1 for yes.
+
+<p><b>Additional Info</B> Following the hints line, all lines up to the ENDINFO line are 
+treated as additional info that appears in the "Choose AI Engine" dialog box. Blank lines 
+may be used for formatting.
+
+<p><a name="plugin"><em>Plugin Mode</em></a>
+
+<p>When the plugin is run with a "-plugin [debug]" argument, it is to play a game. 
+Qianhong redirects STDIN and STDOUT to pipes so it can communicate with the plugin. 
+The plugin reads commands from STDIN, takes appropriate action, and writes responses 
+to STDOUT. All commands (except one, but you'll see that later) require a response.
+The plugin <u>must</u> flush STDOUT each time it finishes writing a response so that the 
+data will be sent through the pipe. Failure to flush the stream will cause Qianhong 
+to wait indefinitely for the data. 
+
+<p>The optional "debug" argument is used when Qianhong is run in plugin debugging mode. 
+(Run Qianhong with "plugin_debug" as the first argument.) In this mode, the plugin will 
+have a console and may output anything it wants to the console by writing to STDERR. 
+Of course, you can also write to a file (or something else) if you like. The debug mode
+is for your own benefit; use it as you see fit.
+
+<p>The next section, <a href="#plugin_3_commands">3. Commands</a>, describes the 
+commands and their associated responses.
+
+<p><hr>
+<p><a name="plugin_3_commands"><em>3. Plugin Commands</em></a>
+
+<p>Qianhong sends the following commands to the plugins. 
+Each command is discussed in detail below. Command and response words are 
+in ALL CAPS, though your plugin may choose to recognize lower-case commands as well.
+
+<pre>  Required:
+    <a href="#level">LEVEL [new-level]</a>
+    <a href="#fen">FEN &lt;FEN-string&gt;</a>
+    <a href="#play">PLAY &lt;ICCS-move&gt;</a>
+    <a href="#load">LOAD &lt;count&gt; ...</a>
+    <a href="#ai">AI</a>
+    <a href="#abort">ABORT</a>
+    <a href="#quit">QUIT</a>
+
+  Optional:
+    <a href="#undo">UNDO</a>
+    <a href="#hints">HINTS</a>
+    <a href="#ban">BAN &lt;count&gt; ...</a>
+    <a href="#bgthink">BGTHINK &lt;ON|OFF&gt;</a>
+    <a href="#timeout">TIMEOUT</a></pre>
+
+<p>A note on responses: All responses must end with a newline character ('\n').
+Expected responses vary by command, but the two most common responses are OK and ERROR.
+Both of these may be followed (on the same line) by additional text as desired. 
+Errors will usually be reported in a Qianhong message box, in which case the
+user will be able to read the text description of the error.
+
+<p><a name="level"><b>LEVEL</b></a><br>
+<table>
+<tr><td>Command</td><td>LEVEL</td></tr>
+<tr><td>Response</td><td>&lt;current-level&gt;</td></tr>
+<tr><td>Description</td><td>For a LEVEL command with no parameter, reply with the
+current level number.</td></tr>
+</table><table>
+<tr><td>Command</td><td>LEVEL &lt;new-level&gt;</td></tr>
+<tr><td>Responses</td><td>OK [text]<br>ERROR [text]</td></tr>
+<tr><td>Description</td><td>For a LEVEL command with a parameter, set the current level
+to the one specified by the given number. Reply OK if successful, or ERROR if the
+number is out of range.</td></tr>
+</table>
+
+<p><a name="fen"><b>FEN</b></a><br>
+<table>
+<tr><td>Command</td><td>FEN &lt;FEN-string&gt;</td></tr>
+<tr><td>Responses</td><td>OK [text]<br>ERROR [text]</td></tr>
+<tr><td>Description</td><td>This command instructs the plugin to set the board using the
+FEN string (see <a href="http://www.nchess.com/fen.html" target="_new">
+<img src="online.gif" border=0>&nbsp;www.nchess.com/fen.html</a> for details on FEN for Chinese Chess). 
+Red will always be on the bottom (i.e. the last line of the string). 
+Reply OK if the board is set, or ERROR if something goes wrong.</td></tr>
+</table>
+
+<p><a name="play"><b>PLAY</b></a><br>
+<table>
+<tr><td>Command</td><td>PLAY &lt;ICCS-move&gt;</td></tr>
+<tr><td>Responses</td><td>OK [text]<br>ERROR [text]</td></tr>
+<tr><td>Description</td><td>This tells the plugin to play the given move. The move 
+parameter is in ICCS notation of the form "A0-A1". Looking down on a board with red 
+on the bottom, A0 is the lower-left corner (where red's left chariot starts) 
+and I9 is the upper-right corner (where black's left chariot starts). 
+So the move "A0-A1" would move the piece in the near corner of red's ninth file 
+up one spot. (See notation conventions in <a href="#plugin_4_tricky">4. Tricky Stuff</a> for more.)
+Reply OK if the move is made, or ERROR if something goes wrong.</td></tr>
+</table>
+
+<p><a name="load"><b>LOAD</b></a><br>
+<table>
+<tr><td>Command</td><td>LOAD &lt;count&gt; \n [ICCS-move \n] ...</td></tr>
+<tr><td>Responses</td><td>OK [text]<br>ERROR [text]</td></tr>
+<tr><td>Description</td><td>Tells the plugin to play a list of moves. This allows Qianhong to load a whole sequence of moves much quicker than using multiple PLAY commands. The parameter is the number of moves, which are given in ICCS format, one-per-line, following the LOAD command.
+</td></tr>
+</table>
+
+<p><a name="ai"><b>AI</b></a><br>
+<table>
+<tr><td>Command</td><td>AI</td></tr>
+<tr><td>Responses</td><td>&lt;ICCS-move&gt;<br>ERROR [text]<br>ABORTED</td></tr>
+<tr><td>Description</td><td>Tells the plugin to move for the current player and report 
+the move. The plugin responds with the move in ICCS notation of the form "A0-A1", or 
+ERROR if something goes wrong. If the plugin's AI engine takes more than a second to
+respond, the plugin <u>must</u> keep watching STDIN for new commands, and interrupt
+the AI engine if a command comes before the engine is done thinking. In this case,
+the plugin should respond with ABORTED, then process the next command as normal. 
+<br><br>
+Qianhong typically only aborts the AI command when the user closes the app or 
+quits the current game. The exception is with the TIMEOUT command, which, if supported, is sent to cause the AI to stop thinking and reply with the best move it has come up with so far.</td></tr>
+</table>
+
+<p><a name="abort"><b>ABORT</b></a><br>
+<table>
+<tr><td>Command</td><td>ABORT</td></tr>
+<tr><td>Response</td><td>(none)</td></tr>
+<tr><td>Description</td><td>The ABORT command is used when an AI or HINTS command is 
+in progress and Qianhong needs to cancel it and get the plugin back to a ready state.
+Since the plugin must abort AI and HINTS commands when <i>any</i> new command is sent,
+this is just a way to stop the AI engine without causing a new command to execute.
+The plugin does not reply to the ABORT command directly; the only response is from
+a terminated AI or HINTS command that responds with ABORTED.
+</td></tr>
+</table>
+
+<p><a name="quit"><b>QUIT</b></a><br>
+<table>
+<tr><td>Command</td><td>QUIT</td></tr>
+<tr><td>Response</td><td>BYE</td></tr>
+<tr><td>Description</td><td>This command tells the plugin to stop running and exit.
+The plugin responds with BYE when it shuts down. (If the plugin doesn't respond or
+close, Qianhong will give it about a second and then kill it. This is a last resort
+that may leave resources open, so the plugin should be sure to shut down gracefully 
+when it is told to quit.)
+</td></tr>
+</table>
+
+<p><a name="undo"><b>UNDO</b></a><br>
+<table>
+<tr><td>Command</td><td>UNDO</td></tr>
+<tr><td>Responses</td><td>OK [text]<br>ERROR [text]</td></tr>
+<tr><td>Description</td><td>Tells the plugin to undo the last move. The plugin 
+responds with OK if it can undo it, or ERROR if something goes wrong (or if no moves
+have been played yet).<br><br>
+The plugin may choose not to implement this command (to the dismay of users =) 
+by specifying "UNDO 0" in the <a href="#info">info mode</a>.</td></tr>
+</table>
+
+<p><a name="hints"><b>HINTS</b></a><br>
+<table>
+<tr><td>Command</td><td>HINTS</td></tr>
+<tr><td>Responses</td><td>
+&lt;hint [description]&gt; \n [hint [description] \n] ... ENDHINTS<br>
+ERROR [text]<br>ABORTED</td></tr>
+<tr><td>Description</td><td>Requests hints on the current move from the plugin.
+This is basically the same as the AI command except that: (1) the plugin does not play
+a move, (2) the plugin may suggest more than one move, and (3) the plugin may describe 
+the move(s) to the user.<br><br>
+The nominal response is one or more ICCS moves, one per line, followed by a line that 
+says ENDHINTS. Moves should be listed in order from best to worst; illegal moves must 
+not be listed. Each ICCS move may be followed (on the same line) by additional text
+describing the move. Other responses are ERROR and ABORTED. (Since this command may take
+more than a second to execute, it should be interruptible by ABORT and TIMEOUT--see the AI command for more.)<br><br>
+The plugin may choose not to implement this command (to the dismay of users =) 
+by specifying "HINTS 0" in the <a href="#info">info mode</a>.</td></tr>
+</table>
+
+<p><a name="ban"><b>BAN</b></a><br>
+<table>
+<tr><td>Command</td><td>BAN &lt;count&gt; \n [ICCS-move \n] ...</td></tr>
+<tr><td>Responses</td><td>OK [text]<br>ERROR [text]</td></tr>
+<tr><td>Description</td><td>Tells the plugin that the listed moves are considered 
+illegal for the next AI or HINTS command. This allows Qianhong to moderate the game like
+a referee, and lets the plugins choose alternate moves accordingly. The parameter is the number of banned moves, which are given in ICCS format, one-per-line, following the BAN command.
+<br><br>
+The plugin may choose not to implement this command by specifying "RULES 0" in the <a href="#info">info mode</a>. In this case, if the plugin plays a banned move, Qianhong will call the game a forfeit. (Forfeits are not pretty, so plugins should support this command if at all possible.)</td></tr>
+</table>
+
+<p><a name="bgthink"><b>BGTHINK</b></a><br>
+<table>
+<tr><td>Command</td><td>BGTHINK &lt;ON|OFF&gt;</td></tr>
+<tr><td>Responses</td><td>OK [text]<br>ERROR [text]</td></tr>
+<tr><td>Description</td><td>This command instructs the plugin to turn its background thinking on or off. Qianhong disables background thinking when two plugins are playing each other or when the user manually disables it. (Qianhong will always tell the plugin to turn BG thinking on or off at the start of each game.)
+<br><br>
+If the plugin does not support BG thinking (as specified by "BGTHINK 0" in the <a href="#info">info mode</a>, it does not need to support this command.</td></tr>
+</table>
+
+<p><a name="timeout"><b>TIMEOUT</b></a><br>
+<table>
+<tr><td>Command</td><td>TIMEOUT</td></tr>
+<tr><td>Responses</td><td>(none)</td></tr>
+<tr><td>Description</td><td>This command is sent by Qianhong after the user-specified time limit is up and the AI or HINTS command has not completed. This command similar to the ABORT command. In fact, the only difference is that the AI must stop thinking and return a valid move or hints list instead of giving the ABORTED response. As with the ABORT command, the only response is from a pending AI or HINTS command. (The plugin must not send a response if the AI is idle.)
+<br><br>
+The plugin may choose not to implement this command by specifying "TIMEOUT 0" in the <a href="#info">info mode</a>.</td></tr>
+</table>
+
+<p>That's it for the commands. If you have questions about them, or if my descriptions
+are not very clear, there are a few things you can do to better understand the protocol:
+<ul>
+<li>Look at the source code for keplugin and VsccPlugin for examples.
+<li>Run Qianhong with the "plugin_debug" parameter and watch the communication with
+the plugins.
+<li>Run a plugin directly (with the "-plugin" argument) and type in your commands. 
+(Both QHPlugin.exe and keplugin.exe have a special command, SCR, that displays the 
+game board to help you follow the game when you are running it by hand.)
+</ul>
+
+<p>The next section, <a href="#plugin_4_tricky">4. Tricky Stuff</a>, describes
+things you should watch out for when writing your plugin.
+
+<p><hr>
+<p><a name="plugin_4_tricky"><em>4. Tricky Stuff</em></a>
+
+<p><b>Testing Your Plugin</b><br>
+When you run Qianhong with the "plugin_debug" parameter, the "Choose AI Engine" dialog
+shows a button you can use to run a set of tests on the plugins. Use this feature to
+help ensure your plugin handles the commands correctly.
+
+<p><b>Piped I/O</b><br>
+Be sure to flush STDOUT after every response!
+
+<p><b>Response Time</b><br>
+If your AI takes more than a second for the AI and HINTS commands (most engines will), 
+then you <u>must</u> come up with some way to respond quickly to any incoming command. 
+The best way is probably to use a separate thread for your AI engine. You 
+might also use polling, but you'll need to use a non-blocking read for the input.
+
+<p><b>Notation Conventions</b><br>
+Red is always on the "bottom" for ICCS moves and FEN strings. The following diagram
+shows the ICCS notation coordinates and FEN row ordering (rows are described left-to-right):
+
+<pre class="text">
+              (Black)
+     A  B  C  D  E  F  G  H  I
+  9 [r][h][e][a][k][a][e][h][r] 9        (first FEN row)
+     |  |  |  | \|/ |  |  |  |
+  8  |--+--+--+--+--+--+--+--|  8        (2nd FEN row)
+     |  |  |  | /|\ |  |  |  |
+  7  |-[c]-+--+--+--+--+-[c]-|  7        (3rd FEN row)
+     |  |  |  |  |  |  |  |  |
+  6 [p]-+-[p]-+-[p]-+-[p]-+-[p] 6        (4th FEN row)
+     |  |  |  |  |  |  |  |  |
+  5  |-----------------------|  5        (5th FEN row)
+     |                       |
+  4  |-----------------------|  4        (6th FEN row)
+     |  |  |  |  |  |  |  |  |
+  3 (P)-+-(P)-+-(P)-+-(P)-+-(P) 3        (7th FEN row)
+     |  |  |  |  |  |  |  |  |
+  2  |-(C)-+--+--+--+--+-(C)-|  2        (8th FEN row)
+     |  |  |  | \|/ |  |  |  |
+  1  |--+--+--+--+--+--+--+--|  1        (9th FEN row)
+     |  |  |  | /|\ |  |  |  |
+  0 (R)(H)(E)(A)(K)(A)(E)(H)(R) 0        (last FEN row)
+     A  B  C  D  E  F  G  H  I
+               (Red)
+</pre>
+
+<p><b>Player Turns</b><br>
+Red goes first, unless a FEN command changes it to black's turn. When the plugin gets an 
+AI (or HINTS) command, it is to play (or think) for whichever side is to move next.
+The AI is never explicitly told which side it is playing.
+
+<p><b>BG Thinking</b><br>
+If you implement background thinking, you should start thinking after an AI command, and think ahead for the same color that the AI command moved for. If something unexpected comes along (UNDO, BAN, PLAY an unanticipated move, etc.), you'll have to bail on the thinking. Since a plugin is only used for one side of the game (except when a human is playing his/her self--which doesn't use AI commands), you won't get AI commands for both sides of the board.
+
+<p><hr>
+
+
+<p><small>Copyright &copy; 2004 Jeremy Craner</small>
+
+</body>
+</html>
