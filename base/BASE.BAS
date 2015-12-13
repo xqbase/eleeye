@@ -224,31 +224,39 @@ End Function
 
 ' === Begin Str2Int/Lng ===
 
+Public Function Dbl2Int(ByVal df As Double, Optional ByVal nMin As Integer = -32767, Optional ByVal nMax As Integer = 32767) As Integer
+
+If df < nMin Then
+    Dbl2Int = nMin
+ElseIf df > nMax Then
+    Dbl2Int = nMax
+Else
+    Dbl2Int = df
+End If
+
+End Function
+
 Public Function Str2Int(ByVal sz As String, Optional ByVal nMin As Integer = -32767, Optional ByVal nMax As Integer = 32767) As Integer
 
-Dim df As Double
-df = Val(sz)
+Str2Int = Dbl2Int(Val(sz), nMin, nMax)
+
+End Function
+
+Public Function Dbl2Lng(ByVal df As Double, Optional ByVal nMin As Long = -2147483647, Optional ByVal nMax As Long = 2147483647) As Long
+
 If df < nMin Then
-    Str2Int = nMin
+    Dbl2Lng = nMin
 ElseIf df > nMax Then
-    Str2Int = nMax
+    Dbl2Lng = nMax
 Else
-    Str2Int = df
+    Dbl2Lng = df
 End If
 
 End Function
 
 Public Function Str2Lng(ByVal sz As String, Optional ByVal nMin As Long = -2147483647, Optional ByVal nMax As Long = 2147483647) As Long
 
-Dim df As Double
-df = Val(sz)
-If df < nMin Then
-    Str2Lng = nMin
-ElseIf df > nMax Then
-    Str2Lng = nMax
-Else
-    Str2Lng = df
-End If
+Str2Lng = Dbl2Lng(Val(sz), nMin, nMax)
 
 End Function
 
