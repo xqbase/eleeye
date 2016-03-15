@@ -60,8 +60,8 @@ int main(void) {
   Search.nRandomMask = 0;
   Search.rc4Random.InitRand();
   PrintLn("id name ElephantEye");
-  PrintLn("id version 3.3");
-  PrintLn("id copyright 2004-2012 www.xqbase.com");
+  PrintLn("id version 3.31");
+  PrintLn("id copyright 2004-2016 www.xqbase.com");
   PrintLn("id author ElephantEye Development Team");
   PrintLn("id user ElephantEye Test Team");
   PrintLn("option usemillisec type check default true");

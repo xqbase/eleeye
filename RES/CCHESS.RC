@@ -1,8 +1,8 @@
 #include <winver.h>
 1                       ICON    DISCARDABLE     "CCHESS.ICO"
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3, 2, 1, 0
- PRODUCTVERSION 3, 2, 1, 0
+ FILEVERSION 3, 3, 1, 0
+ PRODUCTVERSION 3, 3, 1, 0
  FILEFLAGSMASK 0x3fL
  FILEFLAGS 0x0L
  FILEOS 0x4L
@@ -13,16 +13,16 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "Comments", "Chinese Chess Driver 3.21, (C) 2004-2010 www.xqbase.com\0"
+            VALUE "Comments", "Chinese Chess Driver 3.31, (C) 2004-2016 www.xqbase.com\0"
             VALUE "CompanyName", "www.xqbase.com\0"
-            VALUE "FileDescription", "Chinese Chess Driver 3.21\0"
-            VALUE "FileVersion", "3.21\0"
-            VALUE "InternalName", "Chinese Chess Driver 3.21\0"
-            VALUE "LegalCopyright", "Chinese Chess Driver 3.21, (C) 2004-2010 www.xqbase.com\0"
+            VALUE "FileDescription", "Chinese Chess Driver 3.31\0"
+            VALUE "FileVersion", "3.31\0"
+            VALUE "InternalName", "Chinese Chess Driver 3.31\0"
+            VALUE "LegalCopyright", "Chinese Chess Driver 3.31, (C) 2004-2016 www.xqbase.com\0"
             VALUE "LegalTrademarks", "www.xqbase.com\0"
             VALUE "OriginalFilename", "CCHESS.DLL\0"
-            VALUE "ProductName", "Chinese Chess Driver 3.21\0"
-            VALUE "ProductVersion", "3.21\0"
+            VALUE "ProductName", "Chinese Chess Driver 3.31\0"
+            VALUE "ProductVersion", "3.31\0"
         END
     END
     BLOCK "VarFileInfo"

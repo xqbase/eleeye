@@ -457,12 +457,7 @@ void PositionStruct::FromFen(const char *szFen) {
         break;
       }
     } else if (*lpFen >= '1' && *lpFen <= '9') {
-      for (k = 0; k < (*lpFen - '0'); k ++) {
-        if (j >= FILE_RIGHT) {
-          break;
-        }
-        j ++;
-      }
+      j += (*lpFen - '0');
     } else if (*lpFen >= 'A' && *lpFen <= 'Z') {
       if (j <= FILE_RIGHT) {
         k = FenPiece(*lpFen);
