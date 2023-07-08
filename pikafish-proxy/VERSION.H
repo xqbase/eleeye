@@ -1,0 +1,1 @@
+#define PIKAFISH_VERSION "2023-03-05"

@@ -1,0 +1,2 @@
+CL /O2 /W3 /Fepikafish-proxy.exe pikafish-prox.cpp ..\BASE\PIPE.CPP ..\ELEEYE\PREGEN.CPP ..\ELEEYE\POSITION.CPP ..\ELEEYE\GENMOVES.CPP ..\ELEEYE\BOOK.CPP
+DEL *.OBJ
