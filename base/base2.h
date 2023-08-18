@@ -43,7 +43,7 @@ inline void Idle(void) {
 const int PATH_SEPARATOR = '/';
 
 inline bool AbsolutePath(const char *sz) {
-  return sz[0] == '/' || (sz[0] == '~' && sz[1] == '/');
+  return sz[0] == '/';
 }
 
 inline void GetSelfExe(char *szDst) {
