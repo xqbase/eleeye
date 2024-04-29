@@ -4,7 +4,7 @@
 #ifndef PARSE_H
 #define PARSE_H
 
-#ifdef _WIN32
+#if defined _WIN32 || defined __CYGWIN__
 
 #include <windows.h>
 #include <shlwapi.h>

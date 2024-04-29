@@ -33,7 +33,7 @@ struct RC4Struct {
     } Seed;
     timeb tb;
     ftime(&tb);
-#if defined __arm__ || defined __mips__
+#if defined __arm__ || defined __arm64__ || defined __mips__
     Seed.qw = 0;
 #else
     Seed.qw = TimeStampCounter();
