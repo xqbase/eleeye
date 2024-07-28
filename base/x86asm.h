@@ -15,7 +15,7 @@ inline uint64_t MAKE_LONG_LONG(uint32_t LowLong, uint32_t HighLong) {
   return (uint64_t) LowLong | ((uint64_t) HighLong << 32);
 }
 
-#if defined __arm__ || defined __arm64__ || defined __mips__
+#if defined __arm__ || defined __aarch64__ || defined __mips__
 
 static int cnBitScanTable[64] = {
   32,  0,  1, 12,  2,  6, -1, 13,  3, -1,  7, -1, -1, -1, -1, 14,
