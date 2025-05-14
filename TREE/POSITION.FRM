@@ -1339,7 +1339,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 ' Search Tree Analyst - for UCCI Engines
 ' Designed by Morning Yellow, Version: 2.35, Last Modified: Oct. 2007
-' Copyright (C) 2004-2007 www.elephantbase.net
+' Copyright (C) 2004-2007 www.xqbase.com
 '
 ' This library is free software; you can redistribute it and/or
 ' modify it under the terms of the GNU Lesser General Public

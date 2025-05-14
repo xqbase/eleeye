@@ -7,10 +7,10 @@ Name: "zh"; MessagesFile: "compiler:Languages\ChineseSimp.isl"; InfoBeforeFile: 
 [Setup]
 AppName=ElephantEye
 AppVerName=ElephantEye 3.1 (《象棋巫师》和《浅红象棋》引擎)
-AppPublisher=www.elephantbase.net
-AppPublisherURL=http://www.elephantbase.net/
-AppSupportURL=http://www.elephantbase.net/
-AppUpdatesURL=http://www.elephantbase.net/
+AppPublisher=www.xqbase.com
+AppPublisherURL=https://www.xqbase.com/
+AppSupportURL=https://www.xqbase.com/
+AppUpdatesURL=https://www.xqbase.com/
 DefaultDirName={pf}\Qianhong\Plugins\ElephantEye
 DefaultGroupName=象棋巫师
 OutputBaseFilename=eleeye
@@ -19,7 +19,7 @@ Compression=lzma
 SolidCompression=yes
 Uninstallable=no
 SetupIconFile=..\RES\XQWSETUP.ICO
-AppCopyright=(C) 2004-2007 www.elephantbase.net
+AppCopyright=(C) 2004-2007 www.xqbase.com
 
 [Files]
 Source: "UCCI2QH.INI"; DestDir: "{app}"; Flags: ignoreversion

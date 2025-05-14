@@ -103,4 +103,4 @@ UCCI引擎联赛模拟器 (版本：3.7)
 七、程序下载
 
 　　UCCI引擎联赛模拟器通常会跟UCCI引擎ElephantEye一同发布，源程序及其Windows版本下的编译程序下载地址是：
-　　　　http://www.elephantbase.net/download/eleeye.7z。
+　　　　https://www.xqbase.com/download/eleeye.7z。

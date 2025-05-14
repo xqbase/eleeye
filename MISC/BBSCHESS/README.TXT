@@ -7,9 +7,9 @@ BBS Chess简介
 　　4. 其 Visual Basic 的源代码是公开的，方便广大象棋爱好者根据自己需要重新设计。
 
 　　注：源程序被 Visual Basic 6 编译过，运行时如果出现找不到“MSVBVM60.DLL”的错误，就表明系统没有安装VB6运行包，安装后即可正常运行。
-　　BBS Chess 的下载地址：http://www.elephantbase.net/download/bbschess.rar
-　　VB6 运行包的下载地址：http://www.elephantbase.net/download/vbrun60.exe
+　　BBS Chess 的下载地址：https://www.xqbase.com/download/bbschess.rar
+　　VB6 运行包的下载地址：https://www.xqbase.com/download/vbrun60.exe
 
-　　有关FEN格式的规范，可参阅：http://www.elephantbase.net/protocol/pgnfen2.htm
-　　如有其他疑问，可发eMail询问：webmaster@elephantbase.net
+　　有关FEN格式的规范，可参阅：https://www.xqbase.com/protocol/pgnfen2.htm
+　　如有其他疑问，可发eMail询问：webmaster@xqbase.com
 　　欢迎广大网友对 BBS Chess 提出意见和建议。

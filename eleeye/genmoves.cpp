@@ -3,7 +3,7 @@ genmoves.cpp - Source Code for ElephantEye, Part IV
 
 ElephantEye - a Chinese Chess Program (UCCI Engine)
 Designed by Morning Yellow, Version: 3.0, Last Modified: Nov. 2007
-Copyright (C) 2004-2007 www.elephantbase.net
+Copyright (C) 2004-2007 www.xqbase.com
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public

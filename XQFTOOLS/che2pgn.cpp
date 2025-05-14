@@ -1,7 +1,7 @@
 /*
 CHE->PGN Convertor - a Chinese Chess Score Convertion Program
 Designed by Morning Yellow, Version: 3.14, Last Modified: Jun. 2008
-Copyright (C) 2004-2008 www.elephantbase.net
+Copyright (C) 2004-2008 www.xqbase.com
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public

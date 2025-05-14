@@ -7,10 +7,10 @@ Quot="
 [Setup]
 AppName=Big<=>GB Convertor
 AppVerName=Big<=>GB Convertor
-AppPublisher=www.elephantbase.net
-AppPublisherURL=http://www.elephantbase.net/
-AppSupportURL=http://www.elephantbase.net/
-AppUpdatesURL=http://www.elephantbase.net/
+AppPublisher=www.xqbase.com
+AppPublisherURL=https://www.xqbase.com/
+AppSupportURL=https://www.xqbase.com/
+AppUpdatesURL=https://www.xqbase.com/
 DefaultDirName={pf}\BIG2GB
 DefaultGroupName=BIG2GB
 OutputBaseFilename=big2gb

@@ -19,10 +19,10 @@ FEN2BMP——国际象棋和中国象棋通用的棋盘图片生成器
 　　如果你对 FEN2BMP 产生的图片不满意，那么你可以修改它所附带的BMP文件，可以是棋盘也可以是棋子，但是要注意：
 　　(1) 不能改动图片的色彩数目，所有的图片都必须是16色的，且使用 Windows 默认的调色板；
 　　(2) 不能改动图片的尺寸，所以文件的大小总是严格固定，如果你要新做一个位图文件，那么做完后必须先和原来的文件比较一下字节数，字节数一样才能替换原来的文件；
-　　(3) 如果你觉得以上两条限制无法让你设计出满意的棋盘，那么请和FEN2BMP的作者联系：morning_yellow@elephantbase.net。
+　　(3) 如果你觉得以上两条限制无法让你设计出满意的棋盘，那么请和FEN2BMP的作者联系：morning_yellow@xqbase.com。
 
 　　好了，希望 FEN2BMP 能给你带来方便。
-　　FEN2BMP 的下载地址：http://www.elephantbase.net/download/fen2bmp.exe
+　　FEN2BMP 的下载地址：https://www.xqbase.com/download/fen2bmp.exe
 
 　　黄晨，2005年3月
-　　象棋百科全书 http://www.elephantbase.net/ 期待您的关注。
+　　象棋百科全书 https://www.xqbase.com/ 期待您的关注。

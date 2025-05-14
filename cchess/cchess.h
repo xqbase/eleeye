@@ -3,7 +3,7 @@ cchess.h/cchess.cpp - Source Code for ElephantEye, Additional Part
 
 ElephantEye - a Chinese Chess Program (UCCI Engine)
 Designed by Morning Yellow, Version: 2.2, Last Modified: Apr. 2007
-Copyright (C) 2004-2007 www.elephantbase.net
+Copyright (C) 2004-2007 www.xqbase.com
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public

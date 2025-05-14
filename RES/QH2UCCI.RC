@@ -13,13 +13,13 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "Comments", "QH2UCCI 1.6, (C) 2004-2006 www.elephantbase.net\0"
-            VALUE "CompanyName", "Author: Morning Yellow (* Shanghai Computer Chess Research Center, eMail: webmaster@elephantbase.net)\0"
+            VALUE "Comments", "QH2UCCI 1.6, (C) 2004-2006 www.xqbase.com\0"
+            VALUE "CompanyName", "Author: Morning Yellow (* Shanghai Computer Chess Research Center, eMail: webmaster@xqbase.com)\0"
             VALUE "FileDescription", "QH2UCCI 1.6\0"
             VALUE "FileVersion", "1.6\0"
             VALUE "InternalName", "QH2UCCI 1.6\0"
-            VALUE "LegalCopyright", "QH2UCCI 1.6, (C) 2004-2006 www.elephantbase.net\0"
-            VALUE "LegalTrademarks", "www.elephantbase.net\0"
+            VALUE "LegalCopyright", "QH2UCCI 1.6, (C) 2004-2006 www.xqbase.com\0"
+            VALUE "LegalTrademarks", "www.xqbase.com\0"
             VALUE "OriginalFilename", "QH2UCCI.EXE\0"
             VALUE "ProductName", "QH2UCCI 1.6\0"
             VALUE "ProductVersion", "1.6\0"

@@ -7,10 +7,10 @@ Quot="
 [Setup]
 AppName=XQFTools
 AppVerName=XQF Tools 2.02
-AppPublisher=www.elephantbase.net
-AppPublisherURL=http://www.elephantbase.net/
-AppSupportURL=http://www.elephantbase.net/
-AppUpdatesURL=http://www.elephantbase.net/
+AppPublisher=www.xqbase.com
+AppPublisherURL=https://www.xqbase.com/
+AppSupportURL=https://www.xqbase.com/
+AppUpdatesURL=https://www.xqbase.com/
 DefaultDirName={pf}\XQFTools
 DefaultGroupName=XQF Tools
 LicenseFile=..\LGPL.TXT
@@ -60,4 +60,4 @@ Root: HKCR; Subkey: "XQStudio\Shell\XQF2PGN\command"; ValueType: string; ValueDa
 [Icons]
 Name: "{group}\XQF2PGN & PGN2XQF Readme"; Filename: "{app}\README.TXT"; Components: xqf2pgn or pgn2xqf
 Name: "{group}\XQStudio"; Filename: "{app}\XQSTUDIO.EXE"; Components: xqstudio
-Name: "{group}\www.elephantbase.net"; Filename: "{app}\ELEBASE.URL"; Components: xqf2pgn or pgn2xqf or xqstudio
+Name: "{group}\www.xqbase.com"; Filename: "{app}\ELEBASE.URL"; Components: xqf2pgn or pgn2xqf or xqstudio

@@ -214,7 +214,7 @@ LONG WINAPI CchessMove2File(LONG mv, const PositionStruct *lppos) {
  * 
  * 表示位置的符号共有8个，除了“前中后”以外还有“一二三四五”，参考
  * 《中国象棋电脑应用规范(二)：着法表示》(简称《规范》)，即以下网页：
- * 　　http://www.elephantbase.net/protocol/cchess_move.htm
+ * 　　https://www.xqbase.com/protocol/cchess_move.htm
  * 由于“前中后”被安排在“一二三四五”以后，但又和“进平退”在符号上一致，因此要加减"DIRECT_TO_POS"作转换。
  * 另外，由于仕(士)相(象)的着法表示的纵线形式和坐标形式有一一对应的关系(固定纵线表示)，
  * 因此可以使用数组"cdwFixFile"和"cucFixMove"对两者进行转换，总共有28种对应关系。

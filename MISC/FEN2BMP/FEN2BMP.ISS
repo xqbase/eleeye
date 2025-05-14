@@ -4,10 +4,10 @@
 [Setup]
 AppName=FEN2BMP
 AppVerName=FEN2BMP
-AppPublisher=www.elephantbase.net
-AppPublisherURL=http://www.elephantbase.net/
-AppSupportURL=http://www.elephantbase.net/
-AppUpdatesURL=http://www.elephantbase.net/
+AppPublisher=www.xqbase.com
+AppPublisherURL=https://www.xqbase.com/
+AppSupportURL=https://www.xqbase.com/
+AppUpdatesURL=https://www.xqbase.com/
 DefaultDirName={pf}\FEN2BMP
 DefaultGroupName=FEN2BMP
 OutputBaseFilename=setup

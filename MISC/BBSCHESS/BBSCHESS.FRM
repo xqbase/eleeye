@@ -774,7 +774,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 ' BBS Chess - A Chess Position Edit Program
 ' Designed by Morning Yellow, Version: 1.1, Last Modified: May. 2008
-' Copyright (C) 2004-2008 www.elephantbase.net
+' Copyright (C) 2004-2008 www.xqbase.com
 '
 ' This library is free software; you can redistribute it and/or
 ' modify it under the terms of the GNU Lesser General Public
@@ -1033,7 +1033,7 @@ For i = 1 To 8
     sz = sz + Chr(27) + Chr(27) + "[0m" + vbCrLf
 Next
 Clipboard.Clear
-Clipboard.SetText sz + szFen + vbCrLf + "欢迎访问www.elephantbase.net" + vbCrLf
+Clipboard.SetText sz + szFen + vbCrLf + "欢迎访问www.xqbase.com" + vbCrLf
 MsgBox "文本棋盘已复制到剪贴板。", vbInformation
 
 End Sub

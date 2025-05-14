@@ -13,13 +13,13 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "Comments", "UCCI-League Emulator 3.5, (C) 2004-2007 www.elephantbase.net\0"
-            VALUE "CompanyName", "Author: Morning Yellow (* Shanghai Computer Chess Research Center, eMail: webmaster@elephantbase.net)\0"
+            VALUE "Comments", "UCCI-League Emulator 3.5, (C) 2004-2007 www.xqbase.com\0"
+            VALUE "CompanyName", "Author: Morning Yellow (* Shanghai Computer Chess Research Center, eMail: webmaster@xqbase.com)\0"
             VALUE "FileDescription", "UCCI-League Emulator 3.5\0"
             VALUE "FileVersion", "3.5\0"
             VALUE "InternalName", "UCCI-League Emulator 3.5\0"
-            VALUE "LegalCopyright", "UCCI-League Emulator 3.5, (C) 2004-2007 www.elephantbase.net\0"
-            VALUE "LegalTrademarks", "www.elephantbase.net\0"
+            VALUE "LegalCopyright", "UCCI-League Emulator 3.5, (C) 2004-2007 www.xqbase.com\0"
+            VALUE "LegalTrademarks", "www.xqbase.com\0"
             VALUE "OriginalFilename", "UCCILEAG.EXE\0"
             VALUE "ProductName", "UCCI-League Emulator 3.5\0"
             VALUE "ProductVersion", "3.5\0"

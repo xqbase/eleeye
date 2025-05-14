@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlUcciTree"
 ' Search Tree Analyst - for UCCI Engines
 ' Designed by Morning Yellow, Version: 3.1, Last Modified: Nov. 2007
-' Copyright (C) 2004-2007 www.elephantbase.net
+' Copyright (C) 2004-2007 www.xqbase.com
 '
 ' This library is free software; you can redistribute it and/or
 ' modify it under the terms of the GNU Lesser General Public

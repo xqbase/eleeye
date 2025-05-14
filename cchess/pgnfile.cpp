@@ -1,7 +1,7 @@
 /*
 PGN->XQF - a Chinese Chess Score Convertion Program
 Designed by Morning Yellow, Version: 2.1, Last Modified: Jun. 2007
-Copyright (C) 2004-2007 www.elephantbase.net
+Copyright (C) 2004-2007 www.xqbase.com
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -100,7 +100,7 @@ static const char *const cszAdvertStr = "\r\n"
     "============================\r\n"
     " 欢迎访问《象棋百科全书网》 \r\n"
     " 推荐用《象棋巫师》观赏棋谱 \r\n"
-    "http://www.elephantbase.net/\r\n";
+    "https://www.xqbase.com/\r\n";
 
 bool PgnFileStruct::Read(const char *szFileName, bool bNoAdvert) {
   FILE *fp;

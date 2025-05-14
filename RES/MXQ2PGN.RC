@@ -13,13 +13,13 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "Comments", "MXQ2PGN 3.14, (C) 2004-2008 www.elephantbase.net\0"
-            VALUE "CompanyName", "Author: Morning Yellow (* Shanghai Computer Chess Research Center, eMail: webmaster@elephantbase.net)\0"
+            VALUE "Comments", "MXQ2PGN 3.14, (C) 2004-2008 www.xqbase.com\0"
+            VALUE "CompanyName", "Author: Morning Yellow (* Shanghai Computer Chess Research Center, eMail: webmaster@xqbase.com)\0"
             VALUE "FileDescription", "MXQ2PGN 3.14\0"
             VALUE "FileVersion", "3.14\0"
             VALUE "InternalName", "MXQ2PGN 3.14\0"
-            VALUE "LegalCopyright", "MXQ2PGN 3.14, (C) 2004-2008 www.elephantbase.net\0"
-            VALUE "LegalTrademarks", "www.elephantbase.net\0"
+            VALUE "LegalCopyright", "MXQ2PGN 3.14, (C) 2004-2008 www.xqbase.com\0"
+            VALUE "LegalTrademarks", "www.xqbase.com\0"
             VALUE "OriginalFilename", "MXQ2PGN.EXE\0"
             VALUE "ProductName", "MXQ2PGN 3.14\0"
             VALUE "ProductVersion", "3.14\0"

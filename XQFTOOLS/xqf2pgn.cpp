@@ -1,7 +1,7 @@
 /*
 XQF->PGN Convertor - a Chinese Chess Score Convertion Program
 Designed by Morning Yellow, Version: 2.1, Last Modified: May 2007
-Copyright (C) 2004-2007 www.elephantbase.net
+Copyright (C) 2004-2007 www.xqbase.com
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public

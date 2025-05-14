@@ -2,7 +2,7 @@ XQF工具包——XQF->PGN和PGN->XQF转换器
 
 (1) XQF->PGN转换器
 
-　　“XQF->PGN转换器”是第一个真正意义上的XQF文件转换工具，它实现了XQF文件转换操作的快速化和批量化。在安装了象棋百科全书网(www.elephantbase.net)提供的XQF工具包后，XQF文件就自动和XQF->PGN转换器建立了联系，只要右击XQF文件，在弹出菜单中选择“Open with PGN Reader”，转换后的文件就会自动被PGN文件默认的关联程序所打开(通常是《象棋巫师》，也可以让PGN文件与普通文本编辑器关联起来)。
+　　“XQF->PGN转换器”是第一个真正意义上的XQF文件转换工具，它实现了XQF文件转换操作的快速化和批量化。在安装了象棋百科全书网(www.xqbase.com)提供的XQF工具包后，XQF文件就自动和XQF->PGN转换器建立了联系，只要右击XQF文件，在弹出菜单中选择“Open with PGN Reader”，转换后的文件就会自动被PGN文件默认的关联程序所打开(通常是《象棋巫师》，也可以让PGN文件与普通文本编辑器关联起来)。
 　　在命令行方式下，还可以实现批量XQF文件到PGN文件的转换。例如输入下列命令：
 
 FOR %A IN (*.XQF) DO XQF2PGN "%A" "%A.PGN"
@@ -19,7 +19,7 @@ FOR %A IN (*.PGN) DO PGN2XQF "%A" "%A.XQF"
 
 (3) 补充说明：
 
-　　XQF工具包(附带XQStudio 1.63)的下载地址是：http://www.elephantbase.net/download/xqftools.exe。
+　　XQF工具包(附带XQStudio 1.63)的下载地址是：https://www.xqbase.com/download/xqftools.exe。
 　　XQF工具包的源代码是象棋程序 ElephantEye 的源代码的一部分，发布在 SourceForge 上：http://sourceforge.net/projects/elephanteye/。
-　　若有使用方法上的疑问，请联系XQF工具包的发布者：webmaster@elephantbase.net。
+　　若有使用方法上的疑问，请联系XQF工具包的发布者：webmaster@xqbase.com。
 　　感谢网友“小月儿”(xiaoyueer2000@hotmail.com)提供了XQF文件的解密算法，本程序是根据该算法设计的。
