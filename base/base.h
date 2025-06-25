@@ -1,5 +1,9 @@
 #include <assert.h>
+#ifdef __ANDROID__
+#include <sys/time.h>
+#else
 #include <sys/timeb.h>
+#endif
 
 #ifndef BASE_H
 #define BASE_H
@@ -78,10 +82,22 @@ inline int PopCnt32(uint32_t dw) {
   return (n >> 16) + (n & 0x0000ffff);
 }
 
+#ifdef __ANDROID__
+
+inline int64_t GetTime() {
+  timeval tv;
+  gettimeofday(&tv, nullptr);
+  return (int64_t) tv.tv_sec * 1000 + tv.tv_usec / 1000;
+}
+
+#else
+
 inline int64_t GetTime() {
   timeb tb;
   ftime(&tb);
   return (int64_t) tb.time * 1000 + tb.millitm;
 }
+
+#endif
 
 #endif

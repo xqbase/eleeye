@@ -31,8 +31,6 @@ struct RC4Struct {
       uint32_t dw[2];
       uint64_t qw;
     } Seed;
-    timeb tb;
-    ftime(&tb);
 #if defined __arm__ || defined __aarch64__ || defined __mips__
     Seed.qw = 0;
 #else
