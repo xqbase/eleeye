@@ -1,0 +1,1 @@
+$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-linux-android21 -static-libstdc++ -DNDEBUG -O4 -Wall -pie -fPIE -Wl,-s -olibeleeye.so ../base/pipe.cpp ucci.cpp pregen.cpp position.cpp genmoves.cpp hash.cpp book.cpp movesort.cpp preeval.cpp evaluate.cpp search.cpp eleeye.cpp
