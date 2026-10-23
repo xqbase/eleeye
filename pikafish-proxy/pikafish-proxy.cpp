@@ -1,7 +1,7 @@
 /* 
 Pikafish Proxy - a Chinese Chess Engine Wrapper for XQWizard to run Pikafish
-Designed by Morning Yellow, Version: 2023-03-05, Last Modified: Jun. 2023
-Copyright (C) 2023 www.xqbase.com
+Designed by Morning Yellow, Version: 2026-09-06, Last Modified: Oct. 2026
+Copyright (C) 2026 www.xqbase.com
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -42,7 +42,7 @@ int main(void) {
   PositionStruct pos;
 
   bUseBook = true;
-  LocatePath(sz, "pikafish-modern.exe");
+  LocatePath(sz, "Pikafish-Windows-x86-64-universal.exe");
   LocatePath(szBookFile, "BOOK.DAT");
   pipeConsole.Open();
   pipeEngine.Open(sz);
